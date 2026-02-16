@@ -286,6 +286,28 @@ export const updateProject = async (id: number, data: Partial<Project>) => {
 
 // --- Contact API ---
 export const sendContactMessage = async (data: ContactForm) => {
+  // 1. Try Supabase Direct
+  if (supabase) {
+    try {
+      const { error } = await supabase
+        .from('contacts')
+        .insert([{
+          name: data.name,
+          email: data.email,
+          subject: data.subject,
+          message: data.message,
+          is_read: false
+        }]);
+      
+      if (error) throw error;
+      return { success: true, message: 'Message sent successfully!' };
+    } catch (err) {
+      console.error('Supabase send message error:', err);
+      // Fall through to backend/mock
+    }
+  }
+
+  // 2. Try Backend API (Fallback)
   try {
     const response = await fetch(`${API_URL}/contact`, {
       method: 'POST',
@@ -301,7 +323,28 @@ export const sendContactMessage = async (data: ContactForm) => {
 };
 
 export const fetchContacts = async (): Promise<ContactMessage[]> => {
-  // Return mock messages to avoid network errors
+  // 1. Try Supabase Direct
+  if (supabase) {
+    const { data, error } = await supabase
+      .from('contacts')
+      .select('*')
+      .order('created_at', { ascending: false });
+      
+    if (data) {
+      return data.map((msg: any) => ({
+        id: msg.id,
+        name: msg.name,
+        email: msg.email,
+        subject: msg.subject,
+        message: msg.message,
+        isRead: msg.is_read,
+        createdAt: msg.created_at
+      }));
+    }
+    if (error) console.error('Supabase fetch contacts error:', error);
+  }
+
+  // 2. Backend / Mock Fallback
   return [
     {
       id: 1,
@@ -316,6 +359,18 @@ export const fetchContacts = async (): Promise<ContactMessage[]> => {
 };
 
 export const updateContactStatus = async (id: number, isRead: boolean) => {
+  // 1. Try Supabase Direct
+  if (supabase) {
+    const { error } = await supabase
+      .from('contacts')
+      .update({ is_read: isRead })
+      .eq('id', id);
+    
+    if (!error) return { id, isRead };
+    console.error('Supabase update contact error:', error);
+  }
+
+  // 2. Backend Fallback
   const res = await fetch(`${API_URL}/contact/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
@@ -326,6 +381,18 @@ export const updateContactStatus = async (id: number, isRead: boolean) => {
 };
 
 export const deleteContact = async (id: number) => {
+  // 1. Try Supabase Direct
+  if (supabase) {
+    const { error } = await supabase
+      .from('contacts')
+      .delete()
+      .eq('id', id);
+    
+    if (!error) return { id };
+    console.error('Supabase delete contact error:', error);
+  }
+
+  // 2. Backend Fallback
   const res = await fetch(`${API_URL}/contact/${id}`, {
     method: 'DELETE',
     headers: { ...getAuthHeader() }
