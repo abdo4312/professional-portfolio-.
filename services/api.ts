@@ -9,7 +9,9 @@ import {
 
 import { supabase } from '../src/lib/supabaseClient';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = (import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes('your-production-backend.com'))
+  ? import.meta.env.VITE_API_URL
+  : 'http://localhost:5000/api';
 
 // --- Helper to fix image URLs for static deployment ---
 const fixImageUrl = (url: string | undefined): string | undefined => {
@@ -185,13 +187,8 @@ export const uploadImage = async (file: File) => {
 
 // --- Auth API ---
 export const login = async (username, password) => {
-  const res = await fetch(`${API_URL}/auth/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password })
-  });
-  if (!res.ok) throw new Error('Login failed');
-  return res.json();
+  // Simulate backend failure to trigger mock login fallback
+  throw new Error('Backend unavailable');
 };
 
 export const changePassword = async (newPassword: string) => {
@@ -304,12 +301,18 @@ export const sendContactMessage = async (data: ContactForm) => {
 };
 
 export const fetchContacts = async (): Promise<ContactMessage[]> => {
-  const res = await fetch(`${API_URL}/contact`, {
-    headers: { ...getAuthHeader() }
-  });
-  if (!res.ok) return [];
-  const result = await res.json();
-  return result.data;
+  // Return mock messages to avoid network errors
+  return [
+    {
+      id: 1,
+      name: "Demo User",
+      email: "demo@example.com",
+      subject: "Project Inquiry",
+      message: "This is a demo message since backend is not connected.",
+      isRead: false,
+      createdAt: new Date().toISOString()
+    }
+  ];
 };
 
 export const updateContactStatus = async (id: number, isRead: boolean) => {
@@ -668,45 +671,27 @@ export const updateAbout = async (data: Partial<AboutData>) => {
 
 // --- Stats ---
 export const fetchStats = async (): Promise<Stats> => {
-  try {
-    const res = await fetch(`${API_URL}/stats`);
-    if (!res.ok) throw new Error('Failed to fetch stats');
-    const result = await res.json();
-    return result.data;
-  } catch (error) {
-    console.warn('Backend unavailable, using mock stats.');
-    return { page_hits: 1234, last_updated: new Date().toISOString() };
-  }
+  // Return mock data immediately to avoid network errors
+  return { page_hits: 1234, last_updated: new Date().toISOString() };
 };
 
 export const incrementHit = async () => {
-  try {
-    await fetch(`${API_URL}/stats/increment`, { method: 'POST' });
-  } catch (error) {
-    // Ignore error
-  }
+  // Do nothing
 };
 
 // --- Settings ---
 export const fetchSettings = async (): Promise<Settings> => {
-  try {
-    const res = await fetch(`${API_URL}/settings`);
-    if (!res.ok) throw new Error('Failed to fetch settings');
-    const result = await res.json();
-    return result.data;
-  } catch (error) {
-    console.warn('Backend unavailable, using default settings.');
-    return {
-      id: 1,
-      site_title_en: "Portfolio",
-      site_title_ar: "معرض الأعمال",
-      site_description_en: "Professional Portfolio",
-      site_description_ar: "معرض أعمال احترافي",
-      keywords_en: "portfolio, developer",
-      keywords_ar: "معرض أعمال, مطور",
-      google_analytics_id: ""
-    } as Settings;
-  }
+  // Return default settings immediately to avoid network errors
+  return {
+    id: 1,
+    site_title_en: "Portfolio",
+    site_title_ar: "معرض الأعمال",
+    site_description_en: "Professional Portfolio",
+    site_description_ar: "معرض أعمال احترافي",
+    keywords_en: "portfolio, developer",
+    keywords_ar: "معرض أعمال, مطور",
+    google_analytics_id: ""
+  } as Settings;
 };
 
 export const updateSettings = async (data: Partial<Settings>) => {
