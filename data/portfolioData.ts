@@ -2,89 +2,68 @@ import { Terminal, Layout, Database, Server, Smartphone, Globe, Cloud, Code } fr
 
 export const personalInfo = {
   name: "Abdelrhman Khaled",
-  title: "Senior Full Stack Engineer",
-  tagline: "Building scalable, user-centric digital solutions for enterprise clients.",
-  email: "contact@abdelrhmankhaled.com",
+  title: "Graphic Design",
+  tagline: "Abdelrhman Khaled is a Graphic Designer with a strong focus on creating clear, impactful, and purpose-driven visual designs.",
+  email: "abdorhamnk134@gmail.com",
   socials: {
+    linkedin: "https://www.linkedin.com/in/abdelrhman-khaled-67027b1b5/",
     github: "https://github.com",
-    linkedin: "https://linkedin.com",
     twitter: "https://twitter.com"
   }
 };
 
 export const skills = {
-  frontend: [
-    { name: "React / Next.js", level: "Expert" },
-    { name: "TypeScript", level: "Expert" },
-    { name: "Tailwind CSS", level: "Advanced" },
-    { name: "Framer Motion", level: "Advanced" }
-  ],
-  backend: [
-    { name: "Node.js", level: "Advanced" },
-    { name: "PostgreSQL", level: "Advanced" },
-    { name: "GraphQL", level: "Intermediate" },
-    { name: "Python", level: "Intermediate" }
+  design: [
+    { name: "Adobe Photoshop", level: "Expert" },
+    { name: "Adobe Illustrator", level: "Expert" },
+    { name: "Adobe InDesign", level: "Advanced" },
+    { name: "Figma", level: "Advanced" }
   ],
   tools: [
-    { name: "Docker", level: "Advanced" },
-    { name: "AWS", level: "Intermediate" },
-    { name: "CI/CD", level: "Advanced" },
-    { name: "Figma", level: "Intermediate" }
-  ]
+    { name: "Visual Concepts", level: "Advanced" },
+    { name: "Typography", level: "Advanced" },
+    { name: "Layout & Composition", level: "Advanced" },
+    { name: "Brand Identity", level: "Expert" }
+  ],
+  other: []
 };
 
 export const experience = [
   {
     id: 1,
-    role: "Senior Software Engineer",
-    company: "TechFlow Solutions",
-    period: "2021 - Present",
-    description: "Leading the frontend architecture for a high-traffic SaaS platform. Improved load times by 40% and mentored junior developers.",
-    technologies: ["React", "TypeScript", "Node.js", "AWS"]
-  },
-  {
-    id: 2,
-    role: "Full Stack Developer",
-    company: "Innovate Corp",
-    period: "2018 - 2021",
-    description: "Developed and maintained multiple client-facing applications. Collaborated with design teams to implement pixel-perfect UIs.",
-    technologies: ["Vue.js", "Django", "PostgreSQL", "Redis"]
-  },
-  {
-    id: 3,
-    role: "Junior Web Developer",
-    company: "Creative Digital",
-    period: "2016 - 2018",
-    description: "Assisted in building responsive websites for various clients. Gained strong foundation in semantic HTML, CSS, and JavaScript.",
-    technologies: ["HTML5", "Sass", "JavaScript", "jQuery"]
+    role: "Graphic Designer",
+    company: "Freelance",
+    period: "2020 - Present",
+    description: "Delivering high-quality graphic design solutions for various clients, including logo design, branding, and marketing materials.",
+    technologies: ["Photoshop", "Illustrator", "InDesign"]
   }
 ];
 
 export const projects = [
   {
     id: 1,
-    title: "E-Commerce Dashboard",
-    description: "A comprehensive analytics dashboard for e-commerce store owners to track real-time sales, inventory, and customer insights.",
-    techStack: ["React", "D3.js", "Firebase", "Tailwind"],
-    image: "https://picsum.photos/600/400?random=1",
+    title: "Brand Identity Project",
+    description: "Complete brand identity design including logo, business cards, and social media assets.",
+    techStack: ["Illustrator", "Photoshop"],
+    image: "https://images.unsplash.com/photo-1626785774573-4b799314346d?q=80&w=2070&auto=format&fit=crop",
     githubUrl: "#",
     liveUrl: "#"
   },
   {
     id: 2,
-    title: "Task Management API",
-    description: "A robust RESTful API for project management tools, featuring secure authentication, real-time updates via WebSockets, and file handling.",
-    techStack: ["Node.js", "Express", "MongoDB", "Docker"],
-    image: "https://picsum.photos/600/400?random=2",
+    title: "Marketing Campaign Visuals",
+    description: "Designed a series of social media graphics and banners for a digital marketing campaign.",
+    techStack: ["Photoshop", "Figma"],
+    image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070&auto=format&fit=crop",
     githubUrl: "#",
     liveUrl: "#"
   },
   {
     id: 3,
-    title: "Finance Tracker App",
-    description: "Mobile-first web application for personal finance tracking, featuring budget planning and expense categorization with intuitive charts.",
-    techStack: ["Next.js", "Chart.js", "Prisma", "PostgreSQL"],
-    image: "https://picsum.photos/600/400?random=3",
+    title: "Corporate Brochure Design",
+    description: "Designed a professional corporate brochure for a leading real estate firm.",
+    techStack: ["InDesign", "Illustrator"],
+    image: "https://images.unsplash.com/photo-1586717791821-3f44a5638d0f?q=80&w=1974&auto=format&fit=crop",
     githubUrl: "#",
     liveUrl: "#"
   }
@@ -93,37 +72,37 @@ export const projects = [
 export const services = [
   {
     id: 1,
-    title: "Web Development",
-    description: "Building responsive, high-performance websites and web applications using modern technologies like React, Next.js, and Node.js.",
-    icon: "code"
-  },
-  {
-    id: 2,
-    title: "Mobile App Development",
-    description: "Creating cross-platform mobile applications for iOS and Android using React Native and Flutter.",
-    icon: "smartphone"
-  },
-  {
-    id: 3,
-    title: "UI/UX Design",
-    description: "Designing intuitive and visually appealing user interfaces with a focus on user experience and accessibility.",
+    title: "Branding & Identity",
+    description: "Logo Design, Brand Identity Systems, Brand Guidelines. Creating strong, consistent, and visually impactful brand identities.",
     icon: "palette"
   },
   {
+    id: 2,
+    title: "Print Design",
+    description: "Business Cards, Flyers & Brochures, Posters, Packaging Design. High-quality, print-ready files tailored to your needs.",
+    icon: "layout"
+  },
+  {
+    id: 3,
+    title: "Digital Design",
+    description: "Social Media Graphics, Web & UI Visuals, Marketing Banners & Ads. Scalable and adaptable designs for digital use.",
+    icon: "monitor"
+  },
+  {
     id: 4,
-    title: "Cloud Solutions",
-    description: "Deploying and managing scalable cloud infrastructure using AWS, Google Cloud, and Docker.",
-    icon: "cloud"
+    title: "Creative Design",
+    description: "Visual Concepts, Typography Design, Layout & Composition. Blending creativity with strategic thinking.",
+    icon: "pen-tool"
   }
 ];
 
 export const education = [
   {
     id: 1,
-    degree: "Bachelor of Science in Computer Science",
-    institution: "Cairo University",
-    period: "2012 - 2016",
-    description: "Focus on Software Engineering, Algorithms, and Data Structures. Graduated with Honors."
+    degree: "Bachelor's Degree",
+    institution: "University",
+    period: "2016 - 2020",
+    description: "Studied Graphic Design and Visual Communication."
   }
 ];
 
