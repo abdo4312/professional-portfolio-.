@@ -11,6 +11,21 @@ import { supabase } from '../src/lib/supabaseClient';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+// --- Helper to fix image URLs for static deployment ---
+const fixImageUrl = (url: string | undefined): string | undefined => {
+  if (!url) return undefined;
+  let fixed = url;
+  // Remove localhost domain to make it relative
+  if (fixed.includes('localhost:5000')) {
+    fixed = fixed.replace(/^(http:\/\/|https:\/\/)localhost:5000/, '');
+  }
+  // Ensure it starts with / if it's an uploads path
+  if (fixed.startsWith('uploads/')) {
+    fixed = '/' + fixed;
+  }
+  return fixed;
+};
+
 // --- Helper to try fetching from Supabase first ---
 const fetchFromSupabase = async <T>(table: string): Promise<T[] | null> => {
   if (!supabase) return null;
@@ -211,8 +226,10 @@ export const fetchProjects = async (): Promise<Project[]> => {
       description: p.description,
       longDescription: p.long_description,
       techStack: typeof p.tech_stack === 'string' ? JSON.parse(p.tech_stack) : (p.tech_stack || []),
-      image: p.image,
-      gallery: typeof p.gallery === 'string' ? JSON.parse(p.gallery) : (p.gallery || []),
+      image: fixImageUrl(p.image),
+      gallery: typeof p.gallery === 'string' 
+        ? JSON.parse(p.gallery).map((img: string) => fixImageUrl(img)) 
+        : (p.gallery || []).map((img: string) => fixImageUrl(img)),
       githubUrl: p.github_url,
       liveUrl: p.live_url,
       category: p.category,
@@ -324,7 +341,7 @@ export const fetchSkills = async (): Promise<Skill[]> => {
       name: s.name,
       category: s.category,
       proficiency: s.proficiency,
-      icon: s.icon,
+      icon: fixImageUrl(s.icon),
       displayOrder: s.display_order
     }));
   }
@@ -534,7 +551,7 @@ export const fetchServices = async (): Promise<Service[]> => {
       title_ar: srv.title_ar,
       description_en: srv.description_en,
       description_ar: srv.description_ar,
-      icon: srv.icon,
+      icon: fixImageUrl(srv.icon),
       displayOrder: srv.display_order
     }));
   }
@@ -600,12 +617,16 @@ export const fetchAbout = async (): Promise<AboutData> => {
       short_bio_ar: d.short_bio_ar,
       about_en: d.about_en,
       about_ar: d.about_ar,
-      imageUrl: d.image_url,
-      cvUrl: d.cv_url,
+      imageUrl: fixImageUrl(d.image_url) || "https://github.com/abdo4312.png",
+      cvUrl: fixImageUrl(d.cv_url),
       email: d.email,
       phone: d.phone,
       address_en: d.address_en,
       address_ar: d.address_ar,
+      freelance_status_en: d.freelance_status_en,
+      freelance_status_ar: d.freelance_status_ar,
+      work_status_en: d.work_status_en,
+      work_status_ar: d.work_status_ar,
       social_links: d.social_links
     };
   }
