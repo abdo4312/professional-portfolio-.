@@ -7,7 +7,22 @@ import {
   personalInfo as staticAbout 
 } from '../data/portfolioData';
 
+import { supabase } from '../src/lib/supabaseClient';
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+// --- Helper to try fetching from Supabase first ---
+const fetchFromSupabase = async <T>(table: string): Promise<T[] | null> => {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase.from(table).select('*').order('id', { ascending: true });
+    if (error) throw error;
+    return data as T[];
+  } catch (err) {
+    console.warn(`Supabase fetch failed for ${table}:`, err);
+    return null;
+  }
+};
 
 // --- Types ---
 export interface Project {
@@ -187,6 +202,27 @@ export const logout = async () => {
 
 // --- Projects API ---
 export const fetchProjects = async (): Promise<Project[]> => {
+  // 1. Try Supabase Direct
+  const supabaseData = await fetchFromSupabase<any>('projects');
+  if (supabaseData) {
+    return supabaseData.map(p => ({
+      id: p.id,
+      title: p.title,
+      description: p.description,
+      longDescription: p.long_description,
+      techStack: typeof p.tech_stack === 'string' ? JSON.parse(p.tech_stack) : (p.tech_stack || []),
+      image: p.image,
+      gallery: typeof p.gallery === 'string' ? JSON.parse(p.gallery) : (p.gallery || []),
+      githubUrl: p.github_url,
+      liveUrl: p.live_url,
+      category: p.category,
+      isFeatured: p.is_featured,
+      displayOrder: p.display_order,
+      createdAt: p.created_at
+    }));
+  }
+
+  // 2. Try Backend API
   try {
     const response = await fetch(`${API_URL}/projects`);
     if (!response.ok) throw new Error(response.statusText);
@@ -280,6 +316,20 @@ export const deleteContact = async (id: number) => {
 
 // --- Skills ---
 export const fetchSkills = async (): Promise<Skill[]> => {
+  // 1. Try Supabase Direct
+  const supabaseData = await fetchFromSupabase<any>('skills');
+  if (supabaseData) {
+    return supabaseData.map(s => ({
+      id: s.id,
+      name: s.name,
+      category: s.category,
+      proficiency: s.proficiency,
+      icon: s.icon,
+      displayOrder: s.display_order
+    }));
+  }
+
+  // 2. Try Backend API
   try {
     const res = await fetch(`${API_URL}/skills`);
     if (!res.ok) throw new Error('Failed to fetch skills');
@@ -339,6 +389,26 @@ export const deleteSkill = async (id: number) => {
 
 // --- Experience ---
 export const fetchExperience = async (): Promise<Experience[]> => {
+  // 1. Try Supabase Direct
+  const supabaseData = await fetchFromSupabase<any>('experience');
+  if (supabaseData) {
+    return supabaseData.map(exp => ({
+      id: exp.id,
+      title_en: exp.title_en,
+      title_ar: exp.title_ar,
+      company_en: exp.company_en,
+      company_ar: exp.company_ar,
+      location_en: exp.location_en,
+      location_ar: exp.location_ar,
+      period_en: exp.period_en,
+      period_ar: exp.period_ar,
+      description_en: exp.description_en,
+      description_ar: exp.description_ar,
+      displayOrder: exp.display_order
+    }));
+  }
+
+  // 2. Try Backend API
   try {
     const res = await fetch(`${API_URL}/experience`);
     if (!res.ok) throw new Error('Failed to fetch experience');
@@ -388,6 +458,24 @@ export const deleteExperience = async (id: number) => {
 
 // --- Education ---
 export const fetchEducation = async (): Promise<Education[]> => {
+  // 1. Try Supabase Direct
+  const supabaseData = await fetchFromSupabase<any>('education');
+  if (supabaseData) {
+    return supabaseData.map(edu => ({
+      id: edu.id,
+      degree_en: edu.degree_en,
+      degree_ar: edu.degree_ar,
+      institution_en: edu.institution_en,
+      institution_ar: edu.institution_ar,
+      period_en: edu.period_en,
+      period_ar: edu.period_ar,
+      description_en: edu.description_en,
+      description_ar: edu.description_ar,
+      displayOrder: edu.display_order
+    }));
+  }
+
+  // 2. Try Backend API
   try {
     const res = await fetch(`${API_URL}/education`);
     if (!res.ok) throw new Error('Failed to fetch education');
@@ -437,6 +525,21 @@ export const deleteEducation = async (id: number) => {
 
 // --- Services ---
 export const fetchServices = async (): Promise<Service[]> => {
+  // 1. Try Supabase Direct
+  const supabaseData = await fetchFromSupabase<any>('services');
+  if (supabaseData) {
+    return supabaseData.map(srv => ({
+      id: srv.id,
+      title_en: srv.title_en,
+      title_ar: srv.title_ar,
+      description_en: srv.description_en,
+      description_ar: srv.description_ar,
+      icon: srv.icon,
+      displayOrder: srv.display_order
+    }));
+  }
+
+  // 2. Try Backend API
   try {
     const res = await fetch(`${API_URL}/services`);
     if (!res.ok) throw new Error('Failed to fetch services');
@@ -483,6 +586,31 @@ export const deleteService = async (id: number) => {
 
 // --- About ---
 export const fetchAbout = async (): Promise<AboutData> => {
+  // 1. Try Supabase Direct
+  const supabaseData = await fetchFromSupabase<any>('about');
+  if (supabaseData && supabaseData.length > 0) {
+    const d = supabaseData[0];
+    return {
+      id: d.id,
+      name_en: d.name_en,
+      name_ar: d.name_ar,
+      title_en: d.title_en,
+      title_ar: d.title_ar,
+      short_bio_en: d.short_bio_en,
+      short_bio_ar: d.short_bio_ar,
+      about_en: d.about_en,
+      about_ar: d.about_ar,
+      imageUrl: d.image_url,
+      cvUrl: d.cv_url,
+      email: d.email,
+      phone: d.phone,
+      address_en: d.address_en,
+      address_ar: d.address_ar,
+      social_links: d.social_links
+    };
+  }
+
+  // 2. Try Backend API
   try {
     const res = await fetch(`${API_URL}/about`);
     if (!res.ok) throw new Error('Failed to fetch about data');
