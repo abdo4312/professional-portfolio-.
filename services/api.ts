@@ -668,22 +668,45 @@ export const updateAbout = async (data: Partial<AboutData>) => {
 
 // --- Stats ---
 export const fetchStats = async (): Promise<Stats> => {
-  const res = await fetch(`${API_URL}/stats`);
-  if (!res.ok) throw new Error('Failed to fetch stats');
-  const result = await res.json();
-  return result.data;
+  try {
+    const res = await fetch(`${API_URL}/stats`);
+    if (!res.ok) throw new Error('Failed to fetch stats');
+    const result = await res.json();
+    return result.data;
+  } catch (error) {
+    console.warn('Backend unavailable, using mock stats.');
+    return { page_hits: 1234, last_updated: new Date().toISOString() };
+  }
 };
 
 export const incrementHit = async () => {
-  await fetch(`${API_URL}/stats/increment`, { method: 'POST' });
+  try {
+    await fetch(`${API_URL}/stats/increment`, { method: 'POST' });
+  } catch (error) {
+    // Ignore error
+  }
 };
 
 // --- Settings ---
 export const fetchSettings = async (): Promise<Settings> => {
-  const res = await fetch(`${API_URL}/settings`);
-  if (!res.ok) throw new Error('Failed to fetch settings');
-  const result = await res.json();
-  return result.data;
+  try {
+    const res = await fetch(`${API_URL}/settings`);
+    if (!res.ok) throw new Error('Failed to fetch settings');
+    const result = await res.json();
+    return result.data;
+  } catch (error) {
+    console.warn('Backend unavailable, using default settings.');
+    return {
+      id: 1,
+      site_title_en: "Portfolio",
+      site_title_ar: "معرض الأعمال",
+      site_description_en: "Professional Portfolio",
+      site_description_ar: "معرض أعمال احترافي",
+      keywords_en: "portfolio, developer",
+      keywords_ar: "معرض أعمال, مطور",
+      google_analytics_id: ""
+    } as Settings;
+  }
 };
 
 export const updateSettings = async (data: Partial<Settings>) => {
