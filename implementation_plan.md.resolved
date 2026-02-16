@@ -1,0 +1,21 @@
+# Updating Admin Credentials
+
+This plan outlines the steps to change the administrative credentials for the dashboard to the values requested by the user.
+
+## Proposed Changes
+
+### Database
+- Update the existing user record in the `users` table or insert a new one if necessary.
+- Use `bcrypt` to hash the new password `Gaara2001`.
+
+### Server
+#### [MODIFY] [db.js](file:///d:/professional-portfolio/server/config/db.js)
+- Update the seeding logic to use `Abdo` as the username and `Gaara2001` as the default password.
+
+### Local Files
+#### [MODIFY] [password datatbase](file:///d:/professional-portfolio/password%20datatbase)
+- Update this reference file with the new password for consistency.
+
+## Verification Plan
+- Run a database query to confirm the record exists.
+- Provide the user with the new credentials to test login.

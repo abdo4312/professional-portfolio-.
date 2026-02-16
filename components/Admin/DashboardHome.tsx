@@ -1,0 +1,167 @@
+import React, { useEffect, useState } from 'react';
+import { fetchProjects, fetchSkills, fetchContacts, fetchExperience, fetchServices, ContactMessage } from '../../services/api';
+import { useLanguage } from '../../services/LanguageContext';
+import { Briefcase, MessageSquare, Code, Layers, GraduationCap, ArrowRight, ExternalLink, PlusCircle, Box } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { cn } from '../../services/utils';
+
+const DashboardHome: React.FC = () => {
+    const { language } = useLanguage();
+    const [stats, setStats] = useState({
+        projects: 0,
+        skills: 0,
+        messages: 0,
+        unreadMessages: 0,
+        experience: 0,
+        services: 0,
+    });
+    const [recentMessages, setRecentMessages] = useState<ContactMessage[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        loadDashboardData();
+    }, []);
+
+    const loadDashboardData = async () => {
+        try {
+            setLoading(true);
+            const [projects, skills, messages, experience, services] = await Promise.all([
+                fetchProjects(),
+                fetchSkills(),
+                fetchContacts(),
+                fetchExperience(),
+                fetchServices(),
+            ]);
+
+            const unread = messages.filter(m => !m.isRead);
+
+            setStats({
+                projects: projects.length,
+                skills: skills.length,
+                messages: messages.length,
+                unreadMessages: unread.length,
+                experience: experience.length,
+                services: services.length,
+            });
+
+            setRecentMessages(messages.slice(0, 5));
+        } catch (error) {
+            console.error('Error loading dashboard data', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const statCards = [
+        { title: language === 'en' ? 'Projects' : 'المشاريع', value: stats.projects, icon: Layers, color: 'bg-blue-500', link: '/admin/projects' },
+        { title: language === 'en' ? 'Skills' : 'المهارات', value: stats.skills, icon: Code, color: 'bg-indigo-500', link: '/admin/skills' },
+        { title: language === 'en' ? 'Messages' : 'الرسائل', value: stats.messages, icon: MessageSquare, subValue: stats.unreadMessages > 0 ? `${stats.unreadMessages} unread` : '', color: 'bg-emerald-500', link: '/admin/messages' },
+        { title: language === 'en' ? 'Services' : 'الخدمات', value: stats.services, icon: Box, color: 'bg-purple-500', link: '/admin/services' },
+    ];
+
+    return (
+        <div className="space-y-8 animate-in fade-in duration-500">
+            <div>
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    {language === 'en' ? 'Welcome back, Admin' : 'مرحباً بعودتك، أيها المشرف'}
+                </h2>
+                <p className="text-slate-500 mt-2">
+                    {language === 'en' ? "Here's what's happening with your portfolio today." : 'إليك ما يحدث في محفظتك اليوم.'}
+                </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {statCards.map((card, i) => (
+                    <Link
+                        to={card.link}
+                        key={i}
+                        className="group bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 hover:border-blue-500/30 hover:shadow-xl hover:shadow-blue-500/5 transition-all"
+                    >
+                        <div className="flex justify-between items-start mb-4">
+                            <div className={cn("p-3 rounded-2xl text-white shadow-lg", card.color)}>
+                                <card.icon size={24} />
+                            </div>
+                            <ArrowRight className="text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" size={20} />
+                        </div>
+                        <h3 className="text-slate-500 dark:text-slate-400 text-sm font-medium">{card.title}</h3>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-2xl font-bold">{card.value}</span>
+                            {card.subValue && <span className="text-[10px] bg-red-50 dark:bg-red-900/20 text-red-500 px-2 py-0.5 rounded-full font-bold">{card.subValue}</span>}
+                        </div>
+                    </Link>
+                ))}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Recent Messages */}
+                <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
+                    <div className="p-6 border-b border-slate-50 dark:border-slate-800 flex justify-between items-center">
+                        <h3 className="font-bold flex items-center gap-2">
+                            <MessageSquare size={18} className="text-blue-500" />
+                            {language === 'en' ? 'Recent Messages' : 'الرسائل الأخيرة'}
+                        </h3>
+                        <Link to="/admin/messages" className="text-sm text-blue-500 hover:underline">
+                            {language === 'en' ? 'View Inbox' : 'عرض البريد'}
+                        </Link>
+                    </div>
+                    <div className="divide-y divide-slate-50 dark:divide-slate-800/50">
+                        {loading ? (
+                            Array(3).fill(0).map((_, i) => (
+                                <div key={i} className="p-4 space-y-2 animate-pulse">
+                                    <div className="h-4 w-1/4 bg-slate-100 dark:bg-slate-800 rounded" />
+                                    <div className="h-3 w-3/4 bg-slate-100 dark:bg-slate-800 rounded" />
+                                </div>
+                            ))
+                        ) : recentMessages.length === 0 ? (
+                            <div className="p-10 text-center text-slate-400">
+                                {language === 'en' ? 'No messages yet.' : 'لا توجد رسائل بعد.'}
+                            </div>
+                        ) : recentMessages.map((msg) => (
+                            <div key={msg.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                <div className="flex justify-between items-start mb-1">
+                                    <span className="text-sm font-bold">{msg.name}</span>
+                                    <span className="text-[10px] text-slate-400">{new Date(msg.createdAt).toLocaleDateString()}</span>
+                                </div>
+                                <p className="text-xs text-slate-500 line-clamp-1">{msg.subject || msg.message}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm p-6">
+                    <h3 className="font-bold mb-6 flex items-center gap-2">
+                        <PlusCircle size={18} className="text-indigo-500" />
+                        {language === 'en' ? 'Quick Actions' : 'إجراءات سريعة'}
+                    </h3>
+                    <div className="space-y-4">
+                        <Link
+                            to="/admin/projects/new"
+                            className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-700 dark:text-slate-300 rounded-2xl transition-all border border-transparent hover:border-blue-200 dark:hover:border-blue-900/50"
+                        >
+                            <Layers size={18} className="text-blue-500" />
+                            <span className="text-sm font-medium">{language === 'en' ? 'Post New Project' : 'نشر مشروع جديد'}</span>
+                        </Link>
+                        <Link
+                            to="/admin/skills"
+                            className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-slate-700 dark:text-slate-300 rounded-2xl transition-all border border-transparent hover:border-indigo-200 dark:hover:border-indigo-900/50"
+                        >
+                            <Code size={18} className="text-indigo-500" />
+                            <span className="text-sm font-medium">{language === 'en' ? 'Update Skills' : 'تحديث المهارات'}</span>
+                        </Link>
+                        <a
+                            href="/"
+                            target="_blank"
+                            className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-slate-700 dark:text-slate-300 rounded-2xl transition-all border border-transparent hover:border-emerald-200 dark:hover:border-emerald-900/50"
+                        >
+                            <ExternalLink size={18} className="text-emerald-500" />
+                            <span className="text-sm font-medium">{language === 'en' ? 'View Live Site' : 'عرض الموقع المباشر'}</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default DashboardHome;
