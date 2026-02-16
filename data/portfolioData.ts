@@ -90,6 +90,43 @@ export const projects = [
   }
 ];
 
+export const services = [
+  {
+    id: 1,
+    title: "Web Development",
+    description: "Building responsive, high-performance websites and web applications using modern technologies like React, Next.js, and Node.js.",
+    icon: "code"
+  },
+  {
+    id: 2,
+    title: "Mobile App Development",
+    description: "Creating cross-platform mobile applications for iOS and Android using React Native and Flutter.",
+    icon: "smartphone"
+  },
+  {
+    id: 3,
+    title: "UI/UX Design",
+    description: "Designing intuitive and visually appealing user interfaces with a focus on user experience and accessibility.",
+    icon: "palette"
+  },
+  {
+    id: 4,
+    title: "Cloud Solutions",
+    description: "Deploying and managing scalable cloud infrastructure using AWS, Google Cloud, and Docker.",
+    icon: "cloud"
+  }
+];
+
+export const education = [
+  {
+    id: 1,
+    degree: "Bachelor of Science in Computer Science",
+    institution: "Cairo University",
+    period: "2012 - 2016",
+    description: "Focus on Software Engineering, Algorithms, and Data Structures. Graduated with Honors."
+  }
+];
+
 export const navLinks = [
   { name: 'About', href: '/#about' },
   { name: 'Services', href: '/#services' },

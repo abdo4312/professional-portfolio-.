@@ -1,4 +1,11 @@
-import { projects as staticProjects } from '../data/portfolioData';
+import { 
+  projects as staticProjects, 
+  skills as staticSkills, 
+  experience as staticExperience, 
+  education as staticEducation, 
+  services as staticServices, 
+  personalInfo as staticAbout 
+} from '../data/portfolioData';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -273,10 +280,32 @@ export const deleteContact = async (id: number) => {
 
 // --- Skills ---
 export const fetchSkills = async (): Promise<Skill[]> => {
-  const res = await fetch(`${API_URL}/skills`);
-  if (!res.ok) return [];
-  const result = await res.json();
-  return result.data;
+  try {
+    const res = await fetch(`${API_URL}/skills`);
+    if (!res.ok) throw new Error('Failed to fetch skills');
+    const result = await res.json();
+    return result.data;
+  } catch (error) {
+    console.warn('Backend unavailable, using static skills data.');
+    const levels: Record<string, number> = { Expert: 95, Advanced: 85, Intermediate: 70, Beginner: 50 };
+    let idCounter = 1;
+    const skillsList: Skill[] = [];
+    
+    // Map staticSkills object to array
+    Object.entries(staticSkills).forEach(([category, items]) => {
+      // @ts-ignore
+      items.forEach((item: any) => {
+        skillsList.push({
+          id: idCounter++,
+          name: item.name,
+          category: category,
+          proficiency: levels[item.level] || 60,
+          displayOrder: idCounter
+        });
+      });
+    });
+    return skillsList;
+  }
 };
 
 export const createSkill = async (data: any) => {
@@ -310,10 +339,26 @@ export const deleteSkill = async (id: number) => {
 
 // --- Experience ---
 export const fetchExperience = async (): Promise<Experience[]> => {
-  const res = await fetch(`${API_URL}/experience`);
-  if (!res.ok) return [];
-  const result = await res.json();
-  return result.data;
+  try {
+    const res = await fetch(`${API_URL}/experience`);
+    if (!res.ok) throw new Error('Failed to fetch experience');
+    const result = await res.json();
+    return result.data;
+  } catch (error) {
+    console.warn('Backend unavailable, using static experience data.');
+    return staticExperience.map((exp: any) => ({
+      id: exp.id,
+      title_en: exp.role,
+      title_ar: exp.role,
+      company_en: exp.company,
+      company_ar: exp.company,
+      period_en: exp.period,
+      period_ar: exp.period,
+      description_en: exp.description,
+      description_ar: exp.description,
+      displayOrder: exp.id
+    }));
+  }
 };
 
 export const createExperience = async (data: any) => {
@@ -343,10 +388,26 @@ export const deleteExperience = async (id: number) => {
 
 // --- Education ---
 export const fetchEducation = async (): Promise<Education[]> => {
-  const res = await fetch(`${API_URL}/education`);
-  if (!res.ok) return [];
-  const result = await res.json();
-  return result.data;
+  try {
+    const res = await fetch(`${API_URL}/education`);
+    if (!res.ok) throw new Error('Failed to fetch education');
+    const result = await res.json();
+    return result.data;
+  } catch (error) {
+    console.warn('Backend unavailable, using static education data.');
+    return staticEducation.map((edu: any) => ({
+      id: edu.id,
+      degree_en: edu.degree,
+      degree_ar: edu.degree,
+      institution_en: edu.institution,
+      institution_ar: edu.institution,
+      period_en: edu.period,
+      period_ar: edu.period,
+      description_en: edu.description,
+      description_ar: edu.description,
+      displayOrder: edu.id
+    }));
+  }
 };
 
 export const createEducation = async (data: any) => {
@@ -376,10 +437,23 @@ export const deleteEducation = async (id: number) => {
 
 // --- Services ---
 export const fetchServices = async (): Promise<Service[]> => {
-  const res = await fetch(`${API_URL}/services`);
-  if (!res.ok) return [];
-  const result = await res.json();
-  return result.data;
+  try {
+    const res = await fetch(`${API_URL}/services`);
+    if (!res.ok) throw new Error('Failed to fetch services');
+    const result = await res.json();
+    return result.data;
+  } catch (error) {
+    console.warn('Backend unavailable, using static services data.');
+    return staticServices.map((srv: any) => ({
+      id: srv.id,
+      title_en: srv.title,
+      title_ar: srv.title,
+      description_en: srv.description,
+      description_ar: srv.description,
+      icon: srv.icon,
+      displayOrder: srv.id
+    }));
+  }
 };
 
 export const createService = async (data: any) => {
@@ -409,10 +483,28 @@ export const deleteService = async (id: number) => {
 
 // --- About ---
 export const fetchAbout = async (): Promise<AboutData> => {
-  const res = await fetch(`${API_URL}/about`);
-  if (!res.ok) throw new Error('Failed to fetch about data');
-  const result = await res.json();
-  return result.data;
+  try {
+    const res = await fetch(`${API_URL}/about`);
+    if (!res.ok) throw new Error('Failed to fetch about data');
+    const result = await res.json();
+    return result.data;
+  } catch (error) {
+    console.warn('Backend unavailable, using static about data.');
+    return {
+      id: 1,
+      name_en: staticAbout.name,
+      name_ar: staticAbout.name,
+      title_en: staticAbout.title,
+      title_ar: staticAbout.title,
+      short_bio_en: staticAbout.tagline,
+      short_bio_ar: staticAbout.tagline,
+      about_en: "Passionate developer building scalable web applications.",
+      about_ar: "مطور شغوف ببناء تطبيقات ويب قابلة للتوسع.",
+      imageUrl: "https://github.com/abdo4312.png",
+      email: staticAbout.email,
+      social_links: JSON.stringify(staticAbout.socials)
+    } as AboutData;
+  }
 };
 
 export const updateAbout = async (data: Partial<AboutData>) => {
