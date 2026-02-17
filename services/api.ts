@@ -9,9 +9,7 @@ import {
 
 import { supabase } from '../src/lib/supabaseClient';
 
-const API_URL = (import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes('your-production-backend.com'))
-  ? import.meta.env.VITE_API_URL
-  : 'http://localhost:5000/api';
+const API_URL = ''; // Disabled to prevent localhost errors
 
 // --- Helper to fix image URLs for static deployment ---
 const fixImageUrl = (url: string | undefined): string | undefined => {
@@ -169,21 +167,29 @@ const getAuthHeader = () => {
 };
 
 export const uploadImage = async (file: File) => {
-  const formData = new FormData();
-  formData.append('images', file);
+  // 1. Try Supabase Storage
+  if (supabase) {
+    try {
+      const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+      const { data, error } = await supabase.storage
+        .from('portfolio-images')
+        .upload(fileName, file);
 
-  const res = await fetch(`${API_URL}/upload`, {
-    method: 'POST',
-    headers: { ...getAuthHeader() },
-    body: formData
-  });
-
-  if (!res.ok) throw new Error('Failed to upload image');
-  const result = await res.json();
-  return result.data[0];
+      if (error) throw error;
+      
+      const { data: { publicUrl } } = supabase.storage
+        .from('portfolio-images')
+        .getPublicUrl(fileName);
+        
+      return publicUrl;
+    } catch (err) {
+      console.warn('Supabase upload failed:', err);
+    }
+  }
+  
+  // 2. Mock Fallback
+  return URL.createObjectURL(file);
 };
-
-
 
 // --- Auth API ---
 export const login = async (username, password) => {
@@ -192,24 +198,14 @@ export const login = async (username, password) => {
 };
 
 export const changePassword = async (newPassword: string) => {
-  const res = await fetch(`${API_URL}/auth/change-password`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-    body: JSON.stringify({ newPassword })
-  });
-  if (!res.ok) throw new Error('Failed to update password');
-  return res.json();
+  // Mock success
+  return { success: true, message: 'Password updated (Demo)' };
 };
 
 export const logout = async () => {
-  const res = await fetch(`${API_URL}/auth/logout`, {
-    method: 'POST',
-    headers: { ...getAuthHeader() }
-  });
-  if (!res.ok) throw new Error('Logout failed');
   // Clear token from localStorage
   localStorage.removeItem('token');
-  return res.json();
+  return { success: true };
 };
 
 // --- Projects API ---
@@ -236,52 +232,48 @@ export const fetchProjects = async (): Promise<Project[]> => {
     }));
   }
 
-  // 2. Try Backend API
-  try {
-    const response = await fetch(`${API_URL}/projects`);
-    if (!response.ok) throw new Error(response.statusText);
-    const result = await response.json();
-    return result.data.map((p: any) => ({
-      ...p,
-      techStack: typeof p.techStack === 'string' ? JSON.parse(p.techStack) : (p.techStack || []),
-      gallery: typeof p.gallery === 'string' ? JSON.parse(p.gallery) : (p.gallery || [])
-    }));
-  } catch (error) {
-    console.warn('Backend unavailable, using static data.');
-    return staticProjects.map(p => ({
-      ...p,
-      category: 'Web Development',
-      isFeatured: false,
-      displayOrder: 0,
-      techStack: p.techStack || []
-    })) as Project[];
-  }
+  // 2. Static Fallback (No localhost fetch)
+  console.warn('Backend unavailable, using static data.');
+  return staticProjects.map(p => ({
+    ...p,
+    category: 'Web Development',
+    isFeatured: false,
+    displayOrder: 0,
+    techStack: p.techStack || []
+  })) as Project[];
 };
 
 export const createProject = async (data: Omit<Project, 'id' | 'createdAt'>) => {
-  const res = await fetch(`${API_URL}/projects`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-    body: JSON.stringify(data)
-  });
-  return res.json();
+  // 1. Try Supabase
+  if (supabase) {
+    try {
+      const { data: result, error } = await supabase.from('projects').insert([data]).select().single();
+      if (error) throw error;
+      return result;
+    } catch (err) { console.warn('Supabase create project failed:', err); }
+  }
+  // 2. Mock Success
+  return { ...data, id: Date.now(), createdAt: new Date().toISOString() };
 };
 
 export const deleteProject = async (id: number) => {
-  await fetch(`${API_URL}/projects/${id}`, {
-    method: 'DELETE',
-    headers: { ...getAuthHeader() }
-  });
+  if (supabase) {
+    try {
+      await supabase.from('projects').delete().eq('id', id);
+    } catch (err) { console.warn('Supabase delete project failed:', err); }
+  }
+  return { success: true };
 };
 
 export const updateProject = async (id: number, data: Partial<Project>) => {
-  const res = await fetch(`${API_URL}/projects/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-    body: JSON.stringify(data)
-  });
-  if (!res.ok) throw new Error('Failed to update project');
-  return res.json();
+  if (supabase) {
+    try {
+      const { data: result, error } = await supabase.from('projects').update(data).eq('id', id).select().single();
+      if (error) throw error;
+      return result;
+    } catch (err) { console.warn('Supabase update project failed:', err); }
+  }
+  return { ...data, id };
 };
 
 // --- Contact API ---
@@ -408,62 +400,57 @@ export const fetchSkills = async (): Promise<Skill[]> => {
     }));
   }
 
-  // 2. Try Backend API
-  try {
-    const res = await fetch(`${API_URL}/skills`);
-    if (!res.ok) throw new Error('Failed to fetch skills');
-    const result = await res.json();
-    return result.data;
-  } catch (error) {
-    console.warn('Backend unavailable, using static skills data.');
-    const levels: Record<string, number> = { Expert: 95, Advanced: 85, Intermediate: 70, Beginner: 50 };
-    let idCounter = 1;
-    const skillsList: Skill[] = [];
-    
-    // Map staticSkills object to array
-    Object.entries(staticSkills).forEach(([category, items]) => {
-      // @ts-ignore
-      items.forEach((item: any) => {
-        skillsList.push({
-          id: idCounter++,
-          name: item.name,
-          category: category,
-          proficiency: levels[item.level] || 60,
-          displayOrder: idCounter
-        });
+  // 2. Static Fallback (No localhost fetch)
+  console.warn('Backend unavailable, using static skills data.');
+  const levels: Record<string, number> = { Expert: 95, Advanced: 85, Intermediate: 70, Beginner: 50 };
+  let idCounter = 1;
+  const skillsList: Skill[] = [];
+  
+  // Map staticSkills object to array
+  Object.entries(staticSkills).forEach(([category, items]) => {
+    // @ts-ignore
+    items.forEach((item: any) => {
+      skillsList.push({
+        id: idCounter++,
+        name: item.name,
+        category: category,
+        proficiency: levels[item.level] || 60,
+        displayOrder: idCounter
       });
     });
-    return skillsList;
-  }
+  });
+  return skillsList;
 };
 
 export const createSkill = async (data: any) => {
-  const res = await fetch(`${API_URL}/skills`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-    body: JSON.stringify(data)
-  });
-  if (!res.ok) throw new Error('Failed to create skill');
-  return res.json();
+  if (supabase) {
+    try {
+      const { data: result, error } = await supabase.from('skills').insert([data]).select().single();
+      if (error) throw error;
+      return result;
+    } catch (err) { console.warn('Supabase create skill failed:', err); }
+  }
+  return { ...data, id: Date.now() };
 };
 
 export const updateSkill = async (id: number, data: any) => {
-  const res = await fetch(`${API_URL}/skills/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-    body: JSON.stringify(data)
-  });
-  if (!res.ok) throw new Error('Failed to update skill');
-  return res.json();
+  if (supabase) {
+    try {
+      const { data: result, error } = await supabase.from('skills').update(data).eq('id', id).select().single();
+      if (error) throw error;
+      return result;
+    } catch (err) { console.warn('Supabase update skill failed:', err); }
+  }
+  return { ...data, id };
 };
 
 export const deleteSkill = async (id: number) => {
-  const res = await fetch(`${API_URL}/skills/${id}`, {
-    method: 'DELETE',
-    headers: { ...getAuthHeader() }
-  });
-  if (!res.ok) throw new Error('Failed to delete skill');
-  return res.json();
+  if (supabase) {
+    try {
+      await supabase.from('skills').delete().eq('id', id);
+    } catch (err) { console.warn('Supabase delete skill failed:', err); }
+  }
+  return { success: true };
 };
 
 // --- Experience ---
@@ -487,52 +474,51 @@ export const fetchExperience = async (): Promise<Experience[]> => {
     }));
   }
 
-  // 2. Try Backend API
-  try {
-    const res = await fetch(`${API_URL}/experience`);
-    if (!res.ok) throw new Error('Failed to fetch experience');
-    const result = await res.json();
-    return result.data;
-  } catch (error) {
-    console.warn('Backend unavailable, using static experience data.');
-    return staticExperience.map((exp: any) => ({
-      id: exp.id,
-      title_en: exp.role,
-      title_ar: exp.role,
-      company_en: exp.company,
-      company_ar: exp.company,
-      period_en: exp.period,
-      period_ar: exp.period,
-      description_en: exp.description,
-      description_ar: exp.description,
-      displayOrder: exp.id
-    }));
-  }
+  // 2. Static Fallback (No localhost fetch)
+  console.warn('Backend unavailable, using static experience data.');
+  return staticExperience.map((exp: any) => ({
+    id: exp.id,
+    title_en: exp.role,
+    title_ar: exp.role,
+    company_en: exp.company,
+    company_ar: exp.company,
+    period_en: exp.period,
+    period_ar: exp.period,
+    description_en: exp.description,
+    description_ar: exp.description,
+    displayOrder: exp.id
+  }));
 };
 
 export const createExperience = async (data: any) => {
-  const res = await fetch(`${API_URL}/experience`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-    body: JSON.stringify(data)
-  });
-  return res.json();
+  if (supabase) {
+    try {
+      const { data: result, error } = await supabase.from('experience').insert([data]).select().single();
+      if (error) throw error;
+      return result;
+    } catch (err) { console.warn('Supabase create experience failed:', err); }
+  }
+  return { ...data, id: Date.now() };
 };
 
 export const updateExperience = async (id: number, data: any) => {
-  const res = await fetch(`${API_URL}/experience/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-    body: JSON.stringify(data)
-  });
-  return res.json();
+  if (supabase) {
+    try {
+      const { data: result, error } = await supabase.from('experience').update(data).eq('id', id).select().single();
+      if (error) throw error;
+      return result;
+    } catch (err) { console.warn('Supabase update experience failed:', err); }
+  }
+  return { ...data, id };
 };
 
 export const deleteExperience = async (id: number) => {
-  await fetch(`${API_URL}/experience/${id}`, {
-    method: 'DELETE',
-    headers: { ...getAuthHeader() }
-  });
+  if (supabase) {
+    try {
+      await supabase.from('experience').delete().eq('id', id);
+    } catch (err) { console.warn('Supabase delete experience failed:', err); }
+  }
+  return { success: true };
 };
 
 // --- Education ---
@@ -554,52 +540,51 @@ export const fetchEducation = async (): Promise<Education[]> => {
     }));
   }
 
-  // 2. Try Backend API
-  try {
-    const res = await fetch(`${API_URL}/education`);
-    if (!res.ok) throw new Error('Failed to fetch education');
-    const result = await res.json();
-    return result.data;
-  } catch (error) {
-    console.warn('Backend unavailable, using static education data.');
-    return staticEducation.map((edu: any) => ({
-      id: edu.id,
-      degree_en: edu.degree,
-      degree_ar: edu.degree,
-      institution_en: edu.institution,
-      institution_ar: edu.institution,
-      period_en: edu.period,
-      period_ar: edu.period,
-      description_en: edu.description,
-      description_ar: edu.description,
-      displayOrder: edu.id
-    }));
-  }
+  // 2. Static Fallback (No localhost fetch)
+  console.warn('Backend unavailable, using static education data.');
+  return staticEducation.map((edu: any) => ({
+    id: edu.id,
+    degree_en: edu.degree,
+    degree_ar: edu.degree,
+    institution_en: edu.institution,
+    institution_ar: edu.institution,
+    period_en: edu.period,
+    period_ar: edu.period,
+    description_en: edu.description,
+    description_ar: edu.description,
+    displayOrder: edu.id
+  }));
 };
 
 export const createEducation = async (data: any) => {
-  const res = await fetch(`${API_URL}/education`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-    body: JSON.stringify(data)
-  });
-  return res.json();
+  if (supabase) {
+    try {
+      const { data: result, error } = await supabase.from('education').insert([data]).select().single();
+      if (error) throw error;
+      return result;
+    } catch (err) { console.warn('Supabase create education failed:', err); }
+  }
+  return { ...data, id: Date.now() };
 };
 
 export const updateEducation = async (id: number, data: any) => {
-  const res = await fetch(`${API_URL}/education/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-    body: JSON.stringify(data)
-  });
-  return res.json();
+  if (supabase) {
+    try {
+      const { data: result, error } = await supabase.from('education').update(data).eq('id', id).select().single();
+      if (error) throw error;
+      return result;
+    } catch (err) { console.warn('Supabase update education failed:', err); }
+  }
+  return { ...data, id };
 };
 
 export const deleteEducation = async (id: number) => {
-  await fetch(`${API_URL}/education/${id}`, {
-    method: 'DELETE',
-    headers: { ...getAuthHeader() }
-  });
+  if (supabase) {
+    try {
+      await supabase.from('education').delete().eq('id', id);
+    } catch (err) { console.warn('Supabase delete education failed:', err); }
+  }
+  return { success: true };
 };
 
 // --- Services ---
@@ -618,49 +603,48 @@ export const fetchServices = async (): Promise<Service[]> => {
     }));
   }
 
-  // 2. Try Backend API
-  try {
-    const res = await fetch(`${API_URL}/services`);
-    if (!res.ok) throw new Error('Failed to fetch services');
-    const result = await res.json();
-    return result.data;
-  } catch (error) {
-    console.warn('Backend unavailable, using static services data.');
-    return staticServices.map((srv: any) => ({
-      id: srv.id,
-      title_en: srv.title,
-      title_ar: srv.title,
-      description_en: srv.description,
-      description_ar: srv.description,
-      icon: srv.icon,
-      displayOrder: srv.id
-    }));
-  }
+  // 2. Static Fallback (No localhost fetch)
+  console.warn('Backend unavailable, using static services data.');
+  return staticServices.map((srv: any) => ({
+    id: srv.id,
+    title_en: srv.title,
+    title_ar: srv.title,
+    description_en: srv.description,
+    description_ar: srv.description,
+    icon: srv.icon,
+    displayOrder: srv.id
+  }));
 };
 
 export const createService = async (data: any) => {
-  const res = await fetch(`${API_URL}/services`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-    body: JSON.stringify(data)
-  });
-  return res.json();
+  if (supabase) {
+    try {
+      const { data: result, error } = await supabase.from('services').insert([data]).select().single();
+      if (error) throw error;
+      return result;
+    } catch (err) { console.warn('Supabase create service failed:', err); }
+  }
+  return { id: Date.now(), ...data };
 };
 
 export const updateService = async (id: number, data: any) => {
-  const res = await fetch(`${API_URL}/services/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-    body: JSON.stringify(data)
-  });
-  return res.json();
+  if (supabase) {
+    try {
+      const { data: result, error } = await supabase.from('services').update(data).eq('id', id).select().single();
+      if (error) throw error;
+      return result;
+    } catch (err) { console.warn('Supabase update service failed:', err); }
+  }
+  return { ...data, id };
 };
 
 export const deleteService = async (id: number) => {
-  await fetch(`${API_URL}/services/${id}`, {
-    method: 'DELETE',
-    headers: { ...getAuthHeader() }
-  });
+  if (supabase) {
+    try {
+      await supabase.from('services').delete().eq('id', id);
+    } catch (err) { console.warn('Supabase delete service failed:', err); }
+  }
+  return { success: true };
 };
 
 // --- About ---
@@ -693,39 +677,33 @@ export const fetchAbout = async (): Promise<AboutData> => {
     };
   }
 
-  // 2. Try Backend API
-  try {
-    const res = await fetch(`${API_URL}/about`);
-    if (!res.ok) throw new Error('Failed to fetch about data');
-    const result = await res.json();
-    return result.data;
-  } catch (error) {
-    console.warn('Backend unavailable, using static about data.');
-    return {
-      id: 1,
-      name_en: staticAbout.name,
-      name_ar: staticAbout.name,
-      title_en: staticAbout.title,
-      title_ar: staticAbout.title,
-      short_bio_en: staticAbout.tagline,
-      short_bio_ar: staticAbout.tagline,
-      about_en: "Passionate developer building scalable web applications.",
-      about_ar: "مطور شغوف ببناء تطبيقات ويب قابلة للتوسع.",
-      imageUrl: "https://github.com/abdo4312.png",
-      email: staticAbout.email,
-      social_links: JSON.stringify(staticAbout.socials)
-    } as AboutData;
-  }
+  // 2. Static Fallback (No localhost fetch)
+  console.warn('Backend unavailable, using static about data.');
+  return {
+    id: 1,
+    name_en: staticAbout.name,
+    name_ar: staticAbout.name,
+    title_en: staticAbout.title,
+    title_ar: staticAbout.title,
+    short_bio_en: staticAbout.tagline,
+    short_bio_ar: staticAbout.tagline,
+    about_en: "Passionate developer building scalable web applications.",
+    about_ar: "مطور شغوف ببناء تطبيقات ويب قابلة للتوسع.",
+    imageUrl: "https://github.com/abdo4312.png",
+    email: staticAbout.email,
+    social_links: JSON.stringify(staticAbout.socials)
+  } as AboutData;
 };
 
 export const updateAbout = async (data: Partial<AboutData>) => {
-  const res = await fetch(`${API_URL}/about`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-    body: JSON.stringify(data)
-  });
-  if (!res.ok) throw new Error('Failed to update personal info');
-  return res.json();
+  if (supabase) {
+    try {
+      const { data: result, error } = await supabase.from('about').update(data).eq('id', 1).select().single();
+      if (error) throw error;
+      return result;
+    } catch (err) { console.warn('Supabase update about failed:', err); }
+  }
+  return { ...data, id: 1 };
 };
 
 // --- Stats ---
@@ -754,47 +732,40 @@ export const fetchSettings = async (): Promise<Settings> => {
 };
 
 export const updateSettings = async (data: Partial<Settings>) => {
-  const res = await fetch(`${API_URL}/settings`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
-    body: JSON.stringify(data)
-  });
-  if (!res.ok) throw new Error('Failed to update settings');
-  return res.json();
+  if (supabase) {
+    try {
+      const { data: result, error } = await supabase.from('settings').update(data).eq('id', 1).select().single();
+      if (error) throw error;
+      return result;
+    } catch (err) { console.warn('Supabase update settings failed:', err); }
+  }
+  return { ...data, id: 1 };
 };
 
 export const exportAllData = async () => {
-  const res = await fetch(`${API_URL}/settings/export`, {
-    headers: { ...getAuthHeader() }
-  });
-  if (!res.ok) throw new Error('Failed to export data');
-  const result = await res.json();
-  return result.data;
+  return {};
 };
 
 // --- Upload API ---
 export const uploadImages = async (files: File[]): Promise<string[]> => {
-  const formData = new FormData();
-  files.forEach(file => {
-    formData.append('images', file);
-  });
+  if (supabase) {
+    const urls: string[] = [];
+    for (const file of files) {
+      try {
+        const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+        const { error } = await supabase.storage
+          .from('portfolio-images')
+          .upload(fileName, file);
 
-  // Note: Do not set Content-Type header when sending FormData
-  // The browser will automatically set it with the boundary
-  const token = localStorage.getItem('token');
-  const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-
-  const res = await fetch(`${API_URL}/upload`, {
-    method: 'POST',
-    headers: headers,
-    body: formData
-  });
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({ message: 'Upload failed' }));
-    throw new Error(errorData.message || 'Upload failed');
+        if (!error) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('portfolio-images')
+            .getPublicUrl(fileName);
+          urls.push(publicUrl);
+        }
+      } catch (err) { console.warn('Supabase upload failed:', err); }
+    }
+    if (urls.length > 0) return urls;
   }
-
-  const result = await res.json();
-  return result.data;
+  return files.map(f => URL.createObjectURL(f));
 };

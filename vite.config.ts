@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(({ mode }) => {
+  // Build timestamp: 2026-02-17
   const env = loadEnv(mode, '.', '');
   return {
     server: {
