@@ -10,7 +10,8 @@ import { Input, Textarea } from '../UI/FormFields';
 import Button from '../UI/Button';
 import ImageUpload from '../UI/ImageUpload';
 import MultiImageUpload from '../UI/MultiImageUpload';
-import { Save, X, Plus, Trash2, Layout, Image as ImageIcon, Link as LinkIcon, Tags, Star } from 'lucide-react';
+import DocumentUpload from '../UI/DocumentUpload';
+import { Save, X, Plus, Trash2, Layout, Image as ImageIcon, Link as LinkIcon, Tags, Star, FileText } from 'lucide-react';
 
 const projectSchema = z.object({
     title: z.string().min(2, 'Title is required'),
@@ -25,6 +26,7 @@ const projectSchema = z.object({
     isFeatured: z.boolean(),
     displayOrder: z.number(),
     gallery: z.array(z.string()).optional(),
+    documents: z.array(z.string()).optional(),
 });
 
 type ProjectFormValues = z.infer<typeof projectSchema>;
@@ -51,6 +53,7 @@ const ProjectForm: React.FC = () => {
         defaultValues: {
             techStack: [],
             gallery: [],
+            documents: [],
             isFeatured: false,
             displayOrder: 0,
         },
@@ -70,6 +73,7 @@ const ProjectForm: React.FC = () => {
                             ...p,
                             isFeatured: !!p.isFeatured,
                             gallery: p.gallery || [],
+                            documents: p.documents || [],
                         });
                     }
                 } catch (error) {
@@ -93,7 +97,8 @@ const ProjectForm: React.FC = () => {
                 liveUrl: values.liveUrl === '' ? undefined : values.liveUrl,
                 categoryDescription: values.categoryDescription || undefined,
                 longDescription: values.longDescription || undefined,
-                gallery: values.gallery || []
+                gallery: values.gallery || [],
+                documents: values.documents || []
             };
 
             if (isEdit) {
@@ -211,6 +216,18 @@ const ProjectForm: React.FC = () => {
                             value={gallery}
                             onChange={(val) => setValue('gallery', val)}
                         />
+
+                        <div className="border-t border-slate-100 dark:border-slate-800 my-4 pt-4">
+                            <h4 className="text-md font-medium mb-3 flex items-center gap-2">
+                                <FileText size={18} className="text-blue-500" />
+                                {language === 'en' ? 'Project Documents' : 'ملفات المشروع'}
+                            </h4>
+                            <DocumentUpload
+                                label={language === 'en' ? 'Upload PDF, Word, Excel' : 'رفع ملفات PDF, Word, Excel'}
+                                value={watch('documents') || []}
+                                onChange={(val) => setValue('documents', val)}
+                            />
+                        </div>
                     </section>
                 </div>
 

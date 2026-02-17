@@ -48,6 +48,7 @@ export interface Project {
   techStack: string[];
   image?: string;
   gallery?: string[];
+  documents?: string[];
   categoryDescription?: string;
   githubUrl?: string;
   liveUrl?: string;
@@ -223,6 +224,9 @@ export const fetchProjects = async (): Promise<Project[]> => {
       gallery: typeof p.gallery === 'string' 
         ? JSON.parse(p.gallery).map((img: string) => fixImageUrl(img)) 
         : (p.gallery || []).map((img: string) => fixImageUrl(img)),
+      documents: typeof p.documents === 'string'
+        ? JSON.parse(p.documents)
+        : (p.documents || []),
       githubUrl: p.github_url,
       liveUrl: p.live_url,
       category: p.category,
@@ -239,7 +243,8 @@ export const fetchProjects = async (): Promise<Project[]> => {
     category: 'Web Development',
     isFeatured: false,
     displayOrder: 0,
-    techStack: p.techStack || []
+    techStack: p.techStack || [],
+    documents: []
   })) as Project[];
 };
 
@@ -254,6 +259,7 @@ export const createProject = async (data: Omit<Project, 'id' | 'createdAt'>) => 
         tech_stack: data.techStack,
         image: data.image,
         gallery: data.gallery,
+        documents: data.documents,
         github_url: data.githubUrl,
         live_url: data.liveUrl,
         category: data.category,
@@ -287,6 +293,7 @@ export const updateProject = async (id: number, data: Partial<Project>) => {
       if (data.techStack !== undefined) { dbData.tech_stack = data.techStack; delete dbData.techStack; }
       if (data.githubUrl !== undefined) { dbData.github_url = data.githubUrl; delete dbData.githubUrl; }
       if (data.liveUrl !== undefined) { dbData.live_url = data.liveUrl; delete dbData.liveUrl; }
+      if (data.documents !== undefined) { dbData.documents = data.documents; delete dbData.documents; }
       if (data.isFeatured !== undefined) { dbData.is_featured = data.isFeatured; delete dbData.isFeatured; }
       if (data.displayOrder !== undefined) { dbData.display_order = data.displayOrder; delete dbData.displayOrder; }
 
@@ -818,6 +825,31 @@ export const uploadImages = async (files: File[]): Promise<string[]> => {
           urls.push(publicUrl);
         }
       } catch (err) { console.warn('Supabase upload failed:', err); }
+    }
+    if (urls.length > 0) return urls;
+  }
+  return files.map(f => URL.createObjectURL(f));
+};
+
+export const uploadDocuments = async (files: File[]): Promise<string[]> => {
+  if (supabase) {
+    const urls: string[] = [];
+    for (const file of files) {
+      try {
+        const fileName = `doc-${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+        const { error } = await supabase.storage
+          .from('portfolio-images') // Reusing existing bucket to ensure it works
+          .upload(fileName, file);
+
+        if (!error) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('portfolio-images')
+            .getPublicUrl(fileName);
+          urls.push(publicUrl);
+        } else {
+            console.error('Supabase document upload error:', error);
+        }
+      } catch (err) { console.warn('Supabase document upload failed:', err); }
     }
     if (urls.length > 0) return urls;
   }

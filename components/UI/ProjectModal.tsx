@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Github, ExternalLink, ChevronLeft, ChevronRight, Info, Layers, Wrench, Globe } from 'lucide-react';
+import { X, Github, ExternalLink, ChevronLeft, ChevronRight, Info, Layers, Wrench, Globe, FileText } from 'lucide-react';
 import { Project } from '../../services/api';
 import { useLanguage } from '../../services/LanguageContext';
 
@@ -170,6 +170,47 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
                                 ))}
                             </div>
                         </div>
+
+                        {/* Documents */}
+                        {project.documents && project.documents.length > 0 && (
+                            <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                <h3 className="text-sm uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold flex items-center gap-2">
+                                    <FileText size={16} />
+                                    {language === 'en' ? 'Downloads' : 'تحميلات'}
+                                </h3>
+                                <div className="grid grid-cols-1 gap-3">
+                                    {project.documents.map((doc, idx) => {
+                                        let fileName = 'Document';
+                                        try {
+                                            fileName = decodeURIComponent(doc.split('/').pop()?.replace(/^\d+-/, '') || 'Document');
+                                        } catch (e) {}
+                                        
+                                        return (
+                                            <a 
+                                                key={idx}
+                                                href={doc}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl hover:border-blue-500 transition-colors group"
+                                            >
+                                                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+                                                    <FileText size={20} />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-sm font-medium text-slate-900 dark:text-white truncate">
+                                                        {fileName}
+                                                    </p>
+                                                    <span className="text-xs text-slate-500 dark:text-slate-400 block mt-0.5">
+                                                        {language === 'en' ? 'Click to download' : 'اضغط للتحميل'}
+                                                    </span>
+                                                </div>
+                                                <ExternalLink size={14} className="text-slate-400 group-hover:text-blue-500" />
+                                            </a>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Footer Actions */}
