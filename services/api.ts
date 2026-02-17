@@ -247,7 +247,21 @@ export const createProject = async (data: Omit<Project, 'id' | 'createdAt'>) => 
   // 1. Try Supabase
   if (supabase) {
     try {
-      const { data: result, error } = await supabase.from('projects').insert([data]).select().single();
+      const dbData = {
+        title: data.title,
+        description: data.description,
+        long_description: data.longDescription,
+        tech_stack: data.techStack,
+        image: data.image,
+        gallery: data.gallery,
+        github_url: data.githubUrl,
+        live_url: data.liveUrl,
+        category: data.category,
+        is_featured: data.isFeatured,
+        display_order: data.displayOrder
+      };
+      
+      const { data: result, error } = await supabase.from('projects').insert([dbData]).select().single();
       if (error) throw error;
       return result;
     } catch (err) { console.warn('Supabase create project failed:', err); }
@@ -268,7 +282,15 @@ export const deleteProject = async (id: number) => {
 export const updateProject = async (id: number, data: Partial<Project>) => {
   if (supabase) {
     try {
-      const { data: result, error } = await supabase.from('projects').update(data).eq('id', id).select().single();
+      const dbData: any = { ...data };
+      if (data.longDescription !== undefined) { dbData.long_description = data.longDescription; delete dbData.longDescription; }
+      if (data.techStack !== undefined) { dbData.tech_stack = data.techStack; delete dbData.techStack; }
+      if (data.githubUrl !== undefined) { dbData.github_url = data.githubUrl; delete dbData.githubUrl; }
+      if (data.liveUrl !== undefined) { dbData.live_url = data.liveUrl; delete dbData.liveUrl; }
+      if (data.isFeatured !== undefined) { dbData.is_featured = data.isFeatured; delete dbData.isFeatured; }
+      if (data.displayOrder !== undefined) { dbData.display_order = data.displayOrder; delete dbData.displayOrder; }
+
+      const { data: result, error } = await supabase.from('projects').update(dbData).eq('id', id).select().single();
       if (error) throw error;
       return result;
     } catch (err) { console.warn('Supabase update project failed:', err); }
@@ -425,7 +447,9 @@ export const fetchSkills = async (): Promise<Skill[]> => {
 export const createSkill = async (data: any) => {
   if (supabase) {
     try {
-      const { data: result, error } = await supabase.from('skills').insert([data]).select().single();
+      const dbData = { ...data, display_order: data.displayOrder };
+      delete dbData.displayOrder;
+      const { data: result, error } = await supabase.from('skills').insert([dbData]).select().single();
       if (error) throw error;
       return result;
     } catch (err) { console.warn('Supabase create skill failed:', err); }
@@ -436,7 +460,12 @@ export const createSkill = async (data: any) => {
 export const updateSkill = async (id: number, data: any) => {
   if (supabase) {
     try {
-      const { data: result, error } = await supabase.from('skills').update(data).eq('id', id).select().single();
+      const dbData = { ...data };
+      if (data.displayOrder !== undefined) {
+        dbData.display_order = data.displayOrder;
+        delete dbData.displayOrder;
+      }
+      const { data: result, error } = await supabase.from('skills').update(dbData).eq('id', id).select().single();
       if (error) throw error;
       return result;
     } catch (err) { console.warn('Supabase update skill failed:', err); }
@@ -493,7 +522,9 @@ export const fetchExperience = async (): Promise<Experience[]> => {
 export const createExperience = async (data: any) => {
   if (supabase) {
     try {
-      const { data: result, error } = await supabase.from('experience').insert([data]).select().single();
+      const dbData = { ...data, display_order: data.displayOrder };
+      delete dbData.displayOrder;
+      const { data: result, error } = await supabase.from('experience').insert([dbData]).select().single();
       if (error) throw error;
       return result;
     } catch (err) { console.warn('Supabase create experience failed:', err); }
@@ -504,7 +535,12 @@ export const createExperience = async (data: any) => {
 export const updateExperience = async (id: number, data: any) => {
   if (supabase) {
     try {
-      const { data: result, error } = await supabase.from('experience').update(data).eq('id', id).select().single();
+      const dbData = { ...data };
+      if (data.displayOrder !== undefined) {
+        dbData.display_order = data.displayOrder;
+        delete dbData.displayOrder;
+      }
+      const { data: result, error } = await supabase.from('experience').update(dbData).eq('id', id).select().single();
       if (error) throw error;
       return result;
     } catch (err) { console.warn('Supabase update experience failed:', err); }
@@ -559,7 +595,9 @@ export const fetchEducation = async (): Promise<Education[]> => {
 export const createEducation = async (data: any) => {
   if (supabase) {
     try {
-      const { data: result, error } = await supabase.from('education').insert([data]).select().single();
+      const dbData = { ...data, display_order: data.displayOrder };
+      delete dbData.displayOrder;
+      const { data: result, error } = await supabase.from('education').insert([dbData]).select().single();
       if (error) throw error;
       return result;
     } catch (err) { console.warn('Supabase create education failed:', err); }
@@ -570,7 +608,12 @@ export const createEducation = async (data: any) => {
 export const updateEducation = async (id: number, data: any) => {
   if (supabase) {
     try {
-      const { data: result, error } = await supabase.from('education').update(data).eq('id', id).select().single();
+      const dbData = { ...data };
+      if (data.displayOrder !== undefined) {
+        dbData.display_order = data.displayOrder;
+        delete dbData.displayOrder;
+      }
+      const { data: result, error } = await supabase.from('education').update(dbData).eq('id', id).select().single();
       if (error) throw error;
       return result;
     } catch (err) { console.warn('Supabase update education failed:', err); }
@@ -619,7 +662,9 @@ export const fetchServices = async (): Promise<Service[]> => {
 export const createService = async (data: any) => {
   if (supabase) {
     try {
-      const { data: result, error } = await supabase.from('services').insert([data]).select().single();
+      const dbData = { ...data, display_order: data.displayOrder };
+      delete dbData.displayOrder;
+      const { data: result, error } = await supabase.from('services').insert([dbData]).select().single();
       if (error) throw error;
       return result;
     } catch (err) { console.warn('Supabase create service failed:', err); }
@@ -630,7 +675,12 @@ export const createService = async (data: any) => {
 export const updateService = async (id: number, data: any) => {
   if (supabase) {
     try {
-      const { data: result, error } = await supabase.from('services').update(data).eq('id', id).select().single();
+      const dbData = { ...data };
+      if (data.displayOrder !== undefined) {
+        dbData.display_order = data.displayOrder;
+        delete dbData.displayOrder;
+      }
+      const { data: result, error } = await supabase.from('services').update(dbData).eq('id', id).select().single();
       if (error) throw error;
       return result;
     } catch (err) { console.warn('Supabase update service failed:', err); }
@@ -698,7 +748,11 @@ export const fetchAbout = async (): Promise<AboutData> => {
 export const updateAbout = async (data: Partial<AboutData>) => {
   if (supabase) {
     try {
-      const { data: result, error } = await supabase.from('about').update(data).eq('id', 1).select().single();
+      const dbData: any = { ...data };
+      if (data.imageUrl !== undefined) { dbData.image_url = data.imageUrl; delete dbData.imageUrl; }
+      if (data.cvUrl !== undefined) { dbData.cv_url = data.cvUrl; delete dbData.cvUrl; }
+      
+      const { data: result, error } = await supabase.from('about').update(dbData).eq('id', 1).select().single();
       if (error) throw error;
       return result;
     } catch (err) { console.warn('Supabase update about failed:', err); }
