@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Navbar from '../Layout/Navbar';
 import Footer from '../Layout/Footer';
 import Hero from '../Sections/Hero';
@@ -8,14 +8,21 @@ import Skills from '../Sections/Skills';
 import Experience from '../Sections/Experience';
 import Projects from '../Sections/Projects';
 import Contact from '../Sections/Contact';
-import { incrementHit, fetchSettings, Settings } from '../../services/api';
+import { incrementHit } from '../../services/api';
 import { useLanguage } from '../../services/LanguageContext';
+import { useSettings } from '../../hooks/usePortfolio';
 
 const Home: React.FC = () => {
   const { language } = useLanguage();
-  const [settings, setSettings] = useState<Settings | null>(null);
+  const { data: settings } = useSettings();
 
   useEffect(() => {
+    // Force scroll to top on mount
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+
     // 1. Analytics: Increment hit if not already counted this session
     const hasVisited = sessionStorage.getItem('hasVisited');
     if (!hasVisited) {
@@ -23,11 +30,6 @@ const Home: React.FC = () => {
         .then(() => sessionStorage.setItem('hasVisited', 'true'))
         .catch(console.error);
     }
-
-    // 2. SEO Settings
-    fetchSettings()
-      .then(setSettings)
-      .catch(console.error);
   }, []);
 
   useEffect(() => {

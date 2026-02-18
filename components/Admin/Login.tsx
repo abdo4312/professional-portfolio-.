@@ -13,22 +13,23 @@ const Login: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      try {
         const data = await login(username, password);
-        localStorage.setItem('token', data.token);
-        navigate('/admin/dashboard');
-      } catch (backendError) {
+        // Supabase login success
+        if (data && data.token) {
+           localStorage.setItem('token', data.token);
+           navigate('/admin/dashboard');
+           return;
+        }
+    } catch (backendError) {
         // Fallback for static/demo mode
         if (username === 'admin' && password === 'admin') {
            localStorage.setItem('token', 'mock-token');
            navigate('/admin/dashboard');
            return;
         }
-        throw backendError;
-      }
-    } catch (err: any) {
-      setError('Invalid credentials');
-      showError('Invalid username or password');
+        console.error(backendError);
+        setError('Invalid credentials');
+        showError('Invalid username/email or password');
     }
   };
 
@@ -39,7 +40,7 @@ const Login: React.FC = () => {
         {error && <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm">{error}</div>}
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Username</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Email / Username</label>
             <input
               type="text"
               value={username}

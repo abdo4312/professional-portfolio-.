@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import SectionWrapper from '../UI/SectionWrapper';
-import { fetchServices, Service } from '../../services/api';
+import { Service } from '../../services/api';
+import { useServices } from '../../hooks/usePortfolio';
 import { useLanguage } from '../../services/LanguageContext';
 import { 
   Code, Layout, Smartphone, Database, Layers, 
@@ -66,17 +67,9 @@ const ServiceCard: React.FC<{ service: Service; onOpen: (s: Service) => void }> 
 
 const Services: React.FC = () => {
   const { language } = useLanguage();
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: services = [], isLoading: loading } = useServices();
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    fetchServices()
-      .then(setServices)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
 
   const handleOpenModal = (service: Service) => {
     setSelectedService(service);

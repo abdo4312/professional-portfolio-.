@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import SectionWrapper from '../UI/SectionWrapper';
-import { fetchSkills, Skill } from '../../services/api';
+import { Skill } from '../../services/api';
+import { useSkills } from '../../hooks/usePortfolio';
 import { useLanguage } from '../../services/LanguageContext';
 import { Code2, Server, Wrench, Palette, Layout, Terminal } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -40,21 +41,12 @@ const SkillCard: React.FC<{ title: string; icon: React.ReactNode; items: Skill[]
 
 const Skills: React.FC = () => {
   const { language } = useLanguage();
-  const [skills, setSkills] = useState<Skill[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchSkills()
-      .then(data => {
-        // Sort by display order or name
-        const sorted = [...data].sort((a, b) => a.displayOrder - b.displayOrder);
-        setSkills(sorted);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
+  const { data: skills = [], isLoading: loading } = useSkills();
 
   if (loading) return null;
+
+  // Sort by display order
+  const sortedSkills = [...skills].sort((a, b) => a.displayOrder - b.displayOrder);
 
   // Normalize and group skills
   const normalizeCategory = (cat: string) => {
@@ -67,7 +59,7 @@ const Skills: React.FC = () => {
     return 'other';
   };
 
-  const groupedSkills = skills.reduce((acc, skill) => {
+  const groupedSkills = sortedSkills.reduce((acc, skill) => {
     const category = normalizeCategory(skill.category);
     if (!acc[category]) acc[category] = [];
     acc[category].push(skill);
@@ -99,7 +91,7 @@ const Skills: React.FC = () => {
     },
     {
       id: 'tools',
-      title_en: "DevOps & Tools",
+      title_en: "Tools & DevOps",
       title_ar: "الأدوات والعمليات",
       icon: <Wrench size={28} strokeWidth={1.5} />,
       items: groupedSkills['tools'] || []
