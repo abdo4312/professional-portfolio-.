@@ -12,7 +12,7 @@ import { Save, Plus, Trash2, Globe, Phone, Mail, MapPin, Image as ImageIcon } fr
 
 const socialLinkSchema = z.object({
     platform: z.string().min(1, 'Platform is required'),
-    url: z.string().url('Invalid URL').or(z.literal('')),
+    url: z.string().optional().or(z.literal('')),
 });
 
 const personalInfoSchema = z.object({
@@ -32,11 +32,11 @@ const personalInfoSchema = z.object({
     freelance_status_ar: z.string().optional().or(z.literal('')),
     work_status_en: z.string().optional().or(z.literal('')),
     work_status_ar: z.string().optional().or(z.literal('')),
-    imageUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
-    hero_image_url: z.string().url('Invalid URL').optional().or(z.literal('')),
+    imageUrl: z.string().optional().or(z.literal('')),
+    hero_image_url: z.string().optional().or(z.literal('')),
     experience_years: z.coerce.number().min(0).max(100).optional(),
     is_available: z.boolean().optional(),
-    cvUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
+    cvUrl: z.string().optional().or(z.literal('')),
     social_links: z.array(socialLinkSchema).optional(),
 });
 
