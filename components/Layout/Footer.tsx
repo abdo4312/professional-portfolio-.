@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAbout, useStats } from '../../hooks/usePortfolio';
 import { useLanguage } from '../../services/LanguageContext';
-import { Eye, Github, Linkedin, Twitter, Mail, ArrowUp } from 'lucide-react';
+import { Github, Linkedin, Twitter, Mail, ArrowUp } from 'lucide-react';
 
 const Footer: React.FC = () => {
   const { language } = useLanguage();
@@ -31,7 +31,7 @@ const Footer: React.FC = () => {
               {language === 'en' ? about?.name_en : about?.name_ar || 'Portfolio'}
             </h5>
             <p className="text-slate-400 mb-6 leading-relaxed max-w-sm">
-              {language === 'en' 
+              {language === 'en'
                 ? about?.short_bio_en || 'Building digital experiences with passion and precision.'
                 : about?.short_bio_ar || 'بناء تجارب رقمية بشغف ودقة.'}
             </p>
@@ -105,13 +105,6 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
             </ul>
-            
-            {stats && (
-              <div className="inline-flex items-center gap-2 text-xs text-slate-500 bg-slate-800/50 px-4 py-2 rounded-full border border-slate-700/50">
-                <Eye size={14} className="text-primary-500" />
-                <span>{stats.page_hits} {language === 'en' ? 'Total Views' : 'إجمالي الزيارات'}</span>
-              </div>
-            )}
           </div>
         </div>
 
@@ -119,8 +112,8 @@ const Footer: React.FC = () => {
           <p className="text-sm text-slate-500">
             © {currentYear} {about?.name_en || 'Portfolio'}. {language === 'en' ? 'All rights reserved.' : 'جميع الحقوق محفوظة.'}
           </p>
-          
-          <button 
+
+          <button
             onClick={scrollToTop}
             className="group flex items-center gap-2 text-sm font-semibold text-slate-400 hover:text-white transition-colors"
           >

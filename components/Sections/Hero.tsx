@@ -47,7 +47,7 @@ const Hero: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 w-full relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          
+
           {/* Text Content */}
           <motion.div
             variants={containerVariants}
@@ -102,9 +102,9 @@ const Hero: React.FC = () => {
                 </a>
               )}
               {data?.email && (
-                 <a href={`mailto:${data.email}`} className="hover:text-red-500 transition-colors transform hover:scale-110">
-                   <Mail size={24} />
-                 </a>
+                <a href={`mailto:${data.email}`} className="hover:text-red-500 transition-colors transform hover:scale-110">
+                  <Mail size={24} />
+                </a>
               )}
             </motion.div>
           </motion.div>
@@ -119,8 +119,20 @@ const Hero: React.FC = () => {
             <div className="relative w-72 h-72 sm:w-96 sm:h-96 lg:w-[500px] lg:h-[500px]">
               {/* Abstract Shapes behind image */}
               <div className="absolute inset-0 bg-gradient-to-tr from-primary-100 to-blue-50 rounded-full animate-pulse opacity-50 blur-xl"></div>
-              
-              {data?.imageUrl ? (
+
+              {data?.hero_image_url ? (
+                <div className="relative w-full h-full rounded-[2rem] overflow-hidden border-8 border-white shadow-2xl rotate-3 hover:rotate-0 transition-all duration-500">
+                  <OptimizedImage
+                    src={data.hero_image_url}
+                    alt={name || 'Profile'}
+                    className="w-full h-full"
+                    imageClassName="object-cover"
+                    width={600}
+                    height={600}
+                    priority
+                  />
+                </div>
+              ) : data?.imageUrl ? (
                 <div className="relative w-full h-full rounded-[2rem] overflow-hidden border-8 border-white shadow-2xl rotate-3 hover:rotate-0 transition-all duration-500">
                   <OptimizedImage
                     src={data.imageUrl}
@@ -139,7 +151,7 @@ const Hero: React.FC = () => {
               )}
 
               {/* Floating Badge */}
-              <motion.div 
+              <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 1, duration: 0.5 }}
@@ -156,7 +168,7 @@ const Hero: React.FC = () => {
       </div>
 
       {/* Scroll Down Indicator */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, y: [0, 10, 0] }}
         transition={{ delay: 1.5, duration: 2, repeat: Infinity }}

@@ -33,6 +33,8 @@ const personalInfoSchema = z.object({
     work_status_en: z.string().optional().or(z.literal('')),
     work_status_ar: z.string().optional().or(z.literal('')),
     imageUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
+    hero_image_url: z.string().url('Invalid URL').optional().or(z.literal('')),
+    experience_years: z.coerce.number().min(0).max(100).optional(),
     cvUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
     social_links: z.array(socialLinkSchema).optional(),
 });
@@ -53,7 +55,7 @@ const PersonalInfo: React.FC = () => {
         setValue,
         formState: { errors },
     } = useForm<PersonalInfoFormValues>({
-        resolver: zodResolver(personalInfoSchema),
+        resolver: zodResolver(personalInfoSchema) as any,
         defaultValues: {
             name_en: '',
             name_ar: '',
@@ -72,6 +74,8 @@ const PersonalInfo: React.FC = () => {
             work_status_en: '',
             work_status_ar: '',
             imageUrl: '',
+            hero_image_url: '',
+            experience_years: 0,
             cvUrl: '',
             social_links: [
                 { platform: 'LinkedIn', url: '' },
@@ -120,6 +124,8 @@ const PersonalInfo: React.FC = () => {
                         work_status_en: data.work_status_en || '',
                         work_status_ar: data.work_status_ar || '',
                         imageUrl: data.imageUrl || '',
+                        hero_image_url: data.hero_image_url || '',
+                        experience_years: data.experience_years || 0,
                         cvUrl: data.cvUrl || '',
                         social_links: Array.isArray(socialLinks) ? socialLinks : [],
                     };
@@ -192,19 +198,25 @@ const PersonalInfo: React.FC = () => {
             </div>
 
             <form className="space-y-8 pb-12">
-                {/* Profile Image */}
+                {/* Profile Images */}
                 <section className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 space-y-6">
                     <h3 className="text-lg font-semibold flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
                         <ImageIcon size={20} className="text-purple-500" />
-                        {language === 'en' ? 'Profile Image' : 'صورة الملف الشخصي'}
+                        {language === 'en' ? 'Profile Images' : 'الصور الشخصية'}
                     </h3>
 
-                    <div className="max-w-xl">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <ImageUpload
-                            label={language === 'en' ? 'Upload Image' : 'رفع صورة'}
+                            label={language === 'en' ? 'About Profile Image' : 'صورة قسم "من أنا"'}
                             value={watch('imageUrl') || ''}
                             onChange={(value) => setValue('imageUrl', value)}
                             error={errors.imageUrl?.message}
+                        />
+                        <ImageUpload
+                            label={language === 'en' ? 'Hero Main Image' : 'صورة الواجهة الرئيسية'}
+                            value={watch('hero_image_url') || ''}
+                            onChange={(value) => setValue('hero_image_url', value)}
+                            error={errors.hero_image_url?.message}
                         />
                     </div>
                 </section>
@@ -357,6 +369,15 @@ const PersonalInfo: React.FC = () => {
                             error={errors.freelance_status_ar?.message}
                             placeholder="متاح للعمل الحر"
                             dir="rtl"
+                        />
+                    </div>
+
+                    <div className="max-w-xs">
+                        <Input
+                            label={language === 'en' ? 'Years of Experience' : 'سنوات الخبرة'}
+                            {...register('experience_years')}
+                            error={errors.experience_years?.message}
+                            type="number"
                         />
                     </div>
                 </section>

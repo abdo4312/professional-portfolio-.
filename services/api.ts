@@ -163,6 +163,8 @@ export interface AboutData {
   freelance_status_ar?: string;
   work_status_en?: string;
   work_status_ar?: string;
+  hero_image_url?: string;
+  experience_years?: number;
   social_links?: string; // JSON string
 }
 
@@ -759,6 +761,8 @@ export const fetchAbout = async (): Promise<AboutData> => {
       freelance_status_ar: d.freelance_status_ar,
       work_status_en: d.work_status_en,
       work_status_ar: d.work_status_ar,
+      hero_image_url: fixImageUrl(d.hero_image_url),
+      experience_years: d.experience_years,
       social_links: d.social_links
     };
   }
@@ -786,6 +790,7 @@ export const updateAbout = async (data: Partial<AboutData>) => {
     try {
       const dbData: any = { ...data };
       if (data.imageUrl !== undefined) { dbData.image_url = data.imageUrl; delete dbData.imageUrl; }
+      if (data.hero_image_url !== undefined) { dbData.hero_image_url = data.hero_image_url; delete dbData.hero_image_url; }
       if (data.cvUrl !== undefined) { dbData.cv_url = data.cvUrl; delete dbData.cvUrl; }
       
       const { data: result, error } = await supabase.from('about').update(dbData).eq('id', 1).select().single();
