@@ -38,6 +38,7 @@ const personalInfoSchema = z.object({
     is_available: z.boolean().optional(),
     cvUrl: z.string().optional().or(z.literal('')),
     social_links: z.array(socialLinkSchema).optional(),
+    id: z.number().optional(),
 });
 
 type PersonalInfoFormValues = z.infer<typeof personalInfoSchema>;
@@ -131,6 +132,7 @@ const PersonalInfo: React.FC = () => {
                         is_available: data.is_available ?? true,
                         cvUrl: data.cvUrl || '',
                         social_links: Array.isArray(socialLinks) ? socialLinks : [],
+                        id: data.id,
                     };
 
                     reset(formValues);

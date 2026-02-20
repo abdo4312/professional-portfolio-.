@@ -796,7 +796,25 @@ export const updateAbout = async (data: Partial<AboutData>) => {
       if (data.cvUrl !== undefined) { dbData.cv_url = data.cvUrl; delete dbData.cvUrl; }
       if (data.is_available !== undefined) { dbData.is_available = data.is_available; delete data.is_available; }
 
-      const { data: result, error } = await supabase.from('about').update(dbData).eq('id', 1).select().single();
+      // Ensure we have an ID to update or upsert
+      let targetId = data.id;
+
+      if (!targetId) {
+        // Try to find the first existing row to update
+        const { data: existing } = await supabase.from('about').select('id').limit(1);
+        if (existing && existing.length > 0) {
+          targetId = existing[0].id;
+        } else {
+          targetId = 1; // Default to 1 for new records
+        }
+      }
+
+      const { data: result, error } = await supabase
+        .from('about')
+        .upsert({ ...dbData, id: targetId })
+        .select()
+        .single();
+
       if (error) throw error;
       return result;
     } catch (err) {
