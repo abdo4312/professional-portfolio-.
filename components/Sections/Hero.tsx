@@ -151,17 +151,19 @@ const Hero: React.FC = () => {
               )}
 
               {/* Floating Badge */}
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 1, duration: 0.5 }}
-                className="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3 animate-bounce-slow"
-              >
-                <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
-                <span className="text-sm font-bold text-slate-700">
-                  {language === 'en' ? 'Available for work' : 'متاح للعمل'}
-                </span>
-              </motion.div>
+              {data?.is_available && (
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 1, duration: 0.5 }}
+                  className="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-3 animate-bounce-slow"
+                >
+                  <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                  <span className="text-sm font-bold text-slate-700">
+                    {language === 'en' ? 'Available for work' : 'متاح للعمل'}
+                  </span>
+                </motion.div>
+              )}
             </div>
           </motion.div>
         </div>

@@ -1,10 +1,10 @@
-import { 
-  projects as staticProjects, 
-  skills as staticSkills, 
-  experience as staticExperience, 
-  education as staticEducation, 
-  services as staticServices, 
-  personalInfo as staticAbout 
+import {
+  projects as staticProjects,
+  skills as staticSkills,
+  experience as staticExperience,
+  education as staticEducation,
+  services as staticServices,
+  personalInfo as staticAbout
 } from '../data/portfolioData';
 
 import { supabase } from '../src/lib/supabaseClient';
@@ -165,6 +165,7 @@ export interface AboutData {
   work_status_ar?: string;
   hero_image_url?: string;
   experience_years?: number;
+  is_available?: boolean;
   social_links?: string; // JSON string
 }
 
@@ -184,17 +185,17 @@ export const uploadImage = async (file: File) => {
         .upload(fileName, file);
 
       if (error) throw error;
-      
+
       const { data: { publicUrl } } = supabase.storage
         .from('portfolio-images')
         .getPublicUrl(fileName);
-        
+
       return publicUrl;
     } catch (err) {
       console.warn('Supabase upload failed:', err);
     }
   }
-  
+
   // 2. Mock Fallback
   return URL.createObjectURL(file);
 };
@@ -209,7 +210,7 @@ export const login = async (email, password) => {
         password,
       });
       if (error) throw error;
-      
+
       // Store session/token if needed, though supabase client handles it automatically
       if (data.session) {
         localStorage.setItem('token', data.session.access_token);
@@ -223,9 +224,9 @@ export const login = async (email, password) => {
   // 2. Mock Fallback (only if Supabase fails or not configured)
   // Check against hardcoded demo credentials or just allow for demo purposes
   if (email === 'admin@example.com' && password === 'admin123') {
-     return { success: true, token: 'mock-jwt-token', user: { email: 'admin@example.com' } };
+    return { success: true, token: 'mock-jwt-token', user: { email: 'admin@example.com' } };
   }
-  
+
   throw new Error('Invalid credentials');
 };
 
@@ -252,8 +253,8 @@ export const fetchProjects = async (): Promise<Project[]> => {
       longDescription: p.long_description,
       techStack: typeof p.tech_stack === 'string' ? JSON.parse(p.tech_stack) : (p.tech_stack || []),
       image: fixImageUrl(p.image),
-      gallery: typeof p.gallery === 'string' 
-        ? JSON.parse(p.gallery).map((img: string) => fixImageUrl(img)) 
+      gallery: typeof p.gallery === 'string'
+        ? JSON.parse(p.gallery).map((img: string) => fixImageUrl(img))
         : (p.gallery || []).map((img: string) => fixImageUrl(img)),
       documents: typeof p.documents === 'string'
         ? JSON.parse(p.documents)
@@ -297,7 +298,7 @@ export const createProject = async (data: Omit<Project, 'id' | 'createdAt'>) => 
         is_featured: data.isFeatured,
         display_order: data.displayOrder
       };
-      
+
       const { data: result, error } = await supabase.from('projects').insert([dbData]).select().single();
       if (error) throw error;
       return result;
@@ -350,7 +351,7 @@ export const sendContactMessage = async (data: ContactForm) => {
           message: data.message,
           is_read: false
         }]);
-      
+
       if (error) throw error;
       return { success: true, message: 'Message sent successfully!' };
     } catch (err) {
@@ -373,7 +374,7 @@ export const fetchContacts = async (): Promise<ContactMessage[]> => {
         .from('contacts')
         .select('*')
         .order('created_at', { ascending: false });
-        
+
       if (error) throw error;
       if (data) {
         return data.map((msg: any) => ({
@@ -413,7 +414,7 @@ export const updateContactStatus = async (id: number, isRead: boolean) => {
         .from('contacts')
         .update({ is_read: isRead })
         .eq('id', id);
-      
+
       if (!error) return { id, isRead };
       console.error('Supabase update contact error:', error);
     } catch (err) {
@@ -433,7 +434,7 @@ export const deleteContact = async (id: number) => {
         .from('contacts')
         .delete()
         .eq('id', id);
-      
+
       if (!error) return { id };
       console.error('Supabase delete contact error:', error);
     } catch (err) {
@@ -465,7 +466,7 @@ export const fetchSkills = async (): Promise<Skill[]> => {
   const levels: Record<string, number> = { Expert: 95, Advanced: 85, Intermediate: 70, Beginner: 50 };
   let idCounter = 1;
   const skillsList: Skill[] = [];
-  
+
   // Map staticSkills object to array
   Object.entries(staticSkills).forEach(([category, items]) => {
     // @ts-ignore
@@ -763,6 +764,7 @@ export const fetchAbout = async (): Promise<AboutData> => {
       work_status_ar: d.work_status_ar,
       hero_image_url: fixImageUrl(d.hero_image_url),
       experience_years: d.experience_years,
+      is_available: d.is_available ?? true,
       social_links: d.social_links
     };
   }
@@ -792,11 +794,15 @@ export const updateAbout = async (data: Partial<AboutData>) => {
       if (data.imageUrl !== undefined) { dbData.image_url = data.imageUrl; delete dbData.imageUrl; }
       if (data.hero_image_url !== undefined) { dbData.hero_image_url = data.hero_image_url; delete dbData.hero_image_url; }
       if (data.cvUrl !== undefined) { dbData.cv_url = data.cvUrl; delete dbData.cvUrl; }
-      
+      if (data.is_available !== undefined) { dbData.is_available = data.is_available; delete data.is_available; }
+
       const { data: result, error } = await supabase.from('about').update(dbData).eq('id', 1).select().single();
       if (error) throw error;
       return result;
-    } catch (err) { console.warn('Supabase update about failed:', err); }
+    } catch (err) {
+      console.error('Supabase update about failed:', err);
+      throw err;
+    }
   }
   return { ...data, id: 1 };
 };
@@ -817,7 +823,7 @@ export const incrementHit = async () => {
           await supabase.from('stats').update({ page_hits: stats.page_hits + 1 }).eq('id', stats.id);
         }
         */
-       throw error;
+        throw error;
       }
     } catch (err) {
       console.warn('Supabase increment hit failed:', err);
@@ -848,9 +854,9 @@ export const fetchDailyStats = async (): Promise<DailyStats[]> => {
         .select('*')
         .order('visit_date', { ascending: true })
         .limit(7);
-        
+
       if (error) throw error;
-      
+
       // If we have real data, return it
       if (data && data.length > 0) {
         return data as DailyStats[];
@@ -859,12 +865,12 @@ export const fetchDailyStats = async (): Promise<DailyStats[]> => {
       console.warn('Supabase fetch daily stats failed:', err);
     }
   }
-  
+
   // Fallback: Return mock data for visualization if DB is empty or connection fails
   // This ensures the user sees the chart even without real traffic yet
   const today = new Date();
   const mockData: DailyStats[] = [];
-  
+
   for (let i = 6; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
@@ -873,7 +879,7 @@ export const fetchDailyStats = async (): Promise<DailyStats[]> => {
       page_hits: Math.floor(Math.random() * 50) + 5 // Random visits between 5 and 55
     });
   }
-  
+
   return mockData;
 };
 
@@ -947,7 +953,7 @@ export const uploadDocuments = async (files: File[]): Promise<string[]> => {
             .getPublicUrl(fileName);
           urls.push(publicUrl);
         } else {
-            console.error('Supabase document upload error:', error);
+          console.error('Supabase document upload error:', error);
         }
       } catch (err) { console.warn('Supabase document upload failed:', err); }
     }

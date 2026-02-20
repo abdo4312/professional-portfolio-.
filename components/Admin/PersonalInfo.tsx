@@ -35,6 +35,7 @@ const personalInfoSchema = z.object({
     imageUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
     hero_image_url: z.string().url('Invalid URL').optional().or(z.literal('')),
     experience_years: z.coerce.number().min(0).max(100).optional(),
+    is_available: z.boolean().optional(),
     cvUrl: z.string().url('Invalid URL').optional().or(z.literal('')),
     social_links: z.array(socialLinkSchema).optional(),
 });
@@ -76,6 +77,7 @@ const PersonalInfo: React.FC = () => {
             imageUrl: '',
             hero_image_url: '',
             experience_years: 0,
+            is_available: true,
             cvUrl: '',
             social_links: [
                 { platform: 'LinkedIn', url: '' },
@@ -126,6 +128,7 @@ const PersonalInfo: React.FC = () => {
                         imageUrl: data.imageUrl || '',
                         hero_image_url: data.hero_image_url || '',
                         experience_years: data.experience_years || 0,
+                        is_available: data.is_available ?? true,
                         cvUrl: data.cvUrl || '',
                         social_links: Array.isArray(socialLinks) ? socialLinks : [],
                     };
@@ -379,6 +382,18 @@ const PersonalInfo: React.FC = () => {
                             error={errors.experience_years?.message}
                             type="number"
                         />
+                    </div>
+
+                    <div className="flex items-center gap-3 pt-4">
+                        <input
+                            type="checkbox"
+                            id="is_available"
+                            {...register('is_available')}
+                            className="w-5 h-5 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                        />
+                        <label htmlFor="is_available" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            {language === 'en' ? 'Available for work' : 'متاح للعمل (تفعيل الشارة)'}
+                        </label>
                     </div>
                 </section>
 
