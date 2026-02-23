@@ -35,7 +35,7 @@ export const useAbout = () => {
   return useQuery<AboutData | null>({
     queryKey: QUERY_KEYS.about,
     queryFn: fetchAbout,
-    staleTime: 1000 * 60 * 60, // 1 hour
+    staleTime: 0, // Always fetch fresh data to ensure updates are reflected immediately
   });
 };
 

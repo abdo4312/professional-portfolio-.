@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { useLanguage } from '../../services/LanguageContext';
 import { fetchAbout, updateAbout } from '../../services/api';
+import { QUERY_KEYS } from '../../hooks/usePortfolio';
 import { showSuccess, showError } from '../../services/toast';
 import { Input, Textarea } from '../UI/FormFields';
 import Button from '../UI/Button';
@@ -45,6 +47,7 @@ type PersonalInfoFormValues = z.infer<typeof personalInfoSchema>;
 
 const PersonalInfo: React.FC = () => {
     const { language, isRTL } = useLanguage();
+    const queryClient = useQueryClient();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
@@ -161,6 +164,8 @@ const PersonalInfo: React.FC = () => {
                 social_links: JSON.stringify(values.social_links),
             };
             await updateAbout(dataToSave);
+            // Invalidate cache to update UI immediately
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.about });
             showSuccess(language === 'en' ? 'Profile updated successfully!' : 'تم تحديث الملف الشخصي بنجاح!');
         } catch (error) {
             console.error('Failed to update profile', error);

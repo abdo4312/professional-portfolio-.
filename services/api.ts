@@ -7,9 +7,19 @@ import {
   personalInfo as staticAbout
 } from '../data/portfolioData';
 
-import { supabase } from '../src/lib/supabaseClient';
+import { supabase, restoreSession, getSupabaseSession } from '../src/lib/supabaseClient';
 
 const API_URL = ''; // Disabled to prevent localhost errors
+
+// --- Helper to ensure authenticated session before protected operations ---
+const ensureAuthenticated = async () => {
+  if (!supabase) return null;
+  const session = await restoreSession();
+  if (!session) {
+    throw new Error('Not authenticated. Please log in again.');
+  }
+  return session;
+};
 
 // --- Helper to fix image URLs for static deployment ---
 const fixImageUrl = (url: string | undefined): string | undefined => {
@@ -201,7 +211,7 @@ export const uploadImage = async (file: File) => {
 };
 
 // --- Auth API ---
-export const login = async (email, password) => {
+export const login = async (email: string, password: string) => {
   // 1. Try Supabase Auth
   if (supabase) {
     try {
@@ -211,9 +221,10 @@ export const login = async (email, password) => {
       });
       if (error) throw error;
 
-      // Store session/token if needed, though supabase client handles it automatically
+      // Store both tokens for session restoration
       if (data.session) {
         localStorage.setItem('token', data.session.access_token);
+        localStorage.setItem('refresh_token', data.session.refresh_token);
         return { success: true, token: data.session.access_token, user: data.user, session: data.session };
       }
     } catch (err) {
@@ -236,8 +247,19 @@ export const changePassword = async (newPassword: string) => {
 };
 
 export const logout = async () => {
-  // Clear token from localStorage
+  // Clear tokens from localStorage
   localStorage.removeItem('token');
+  localStorage.removeItem('refresh_token');
+
+  // Sign out from Supabase
+  if (supabase) {
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.warn('Supabase signout error:', err);
+    }
+  }
+
   return { success: true };
 };
 
@@ -284,6 +306,7 @@ export const createProject = async (data: Omit<Project, 'id' | 'createdAt'>) => 
   // 1. Try Supabase
   if (supabase) {
     try {
+      await ensureAuthenticated();
       const dbData = {
         title: data.title,
         description: data.description,
@@ -302,7 +325,7 @@ export const createProject = async (data: Omit<Project, 'id' | 'createdAt'>) => 
       const { data: result, error } = await supabase.from('projects').insert([dbData]).select().single();
       if (error) throw error;
       return result;
-    } catch (err) { console.warn('Supabase create project failed:', err); }
+    } catch (err) { console.warn('Supabase create project failed:', err); throw err; }
   }
   // 2. Mock Success
   return { ...data, id: Date.now(), createdAt: new Date().toISOString() };
@@ -311,8 +334,9 @@ export const createProject = async (data: Omit<Project, 'id' | 'createdAt'>) => 
 export const deleteProject = async (id: number) => {
   if (supabase) {
     try {
+      await ensureAuthenticated();
       await supabase.from('projects').delete().eq('id', id);
-    } catch (err) { console.warn('Supabase delete project failed:', err); }
+    } catch (err) { console.warn('Supabase delete project failed:', err); throw err; }
   }
   return { success: true };
 };
@@ -320,6 +344,7 @@ export const deleteProject = async (id: number) => {
 export const updateProject = async (id: number, data: Partial<Project>) => {
   if (supabase) {
     try {
+      await ensureAuthenticated();
       const dbData: any = { ...data };
       if (data.longDescription !== undefined) { dbData.long_description = data.longDescription; delete dbData.longDescription; }
       if (data.techStack !== undefined) { dbData.tech_stack = data.techStack; delete dbData.techStack; }
@@ -332,7 +357,7 @@ export const updateProject = async (id: number, data: Partial<Project>) => {
       const { data: result, error } = await supabase.from('projects').update(dbData).eq('id', id).select().single();
       if (error) throw error;
       return result;
-    } catch (err) { console.warn('Supabase update project failed:', err); }
+    } catch (err) { console.warn('Supabase update project failed:', err); throw err; }
   }
   return { ...data, id };
 };
@@ -410,6 +435,7 @@ export const updateContactStatus = async (id: number, isRead: boolean) => {
   // 1. Try Supabase Direct
   if (supabase) {
     try {
+      await ensureAuthenticated();
       const { error } = await supabase
         .from('contacts')
         .update({ is_read: isRead })
@@ -430,6 +456,7 @@ export const deleteContact = async (id: number) => {
   // 1. Try Supabase Direct
   if (supabase) {
     try {
+      await ensureAuthenticated();
       const { error } = await supabase
         .from('contacts')
         .delete()
@@ -486,12 +513,13 @@ export const fetchSkills = async (): Promise<Skill[]> => {
 export const createSkill = async (data: any) => {
   if (supabase) {
     try {
+      await ensureAuthenticated();
       const dbData = { ...data, display_order: data.displayOrder };
       delete dbData.displayOrder;
       const { data: result, error } = await supabase.from('skills').insert([dbData]).select().single();
       if (error) throw error;
       return result;
-    } catch (err) { console.warn('Supabase create skill failed:', err); }
+    } catch (err) { console.warn('Supabase create skill failed:', err); throw err; }
   }
   return { ...data, id: Date.now() };
 };
@@ -499,6 +527,7 @@ export const createSkill = async (data: any) => {
 export const updateSkill = async (id: number, data: any) => {
   if (supabase) {
     try {
+      await ensureAuthenticated();
       const dbData = { ...data };
       if (data.displayOrder !== undefined) {
         dbData.display_order = data.displayOrder;
@@ -507,7 +536,7 @@ export const updateSkill = async (id: number, data: any) => {
       const { data: result, error } = await supabase.from('skills').update(dbData).eq('id', id).select().single();
       if (error) throw error;
       return result;
-    } catch (err) { console.warn('Supabase update skill failed:', err); }
+    } catch (err) { console.warn('Supabase update skill failed:', err); throw err; }
   }
   return { ...data, id };
 };
@@ -515,8 +544,9 @@ export const updateSkill = async (id: number, data: any) => {
 export const deleteSkill = async (id: number) => {
   if (supabase) {
     try {
+      await ensureAuthenticated();
       await supabase.from('skills').delete().eq('id', id);
-    } catch (err) { console.warn('Supabase delete skill failed:', err); }
+    } catch (err) { console.warn('Supabase delete skill failed:', err); throw err; }
   }
   return { success: true };
 };
@@ -561,12 +591,13 @@ export const fetchExperience = async (): Promise<Experience[]> => {
 export const createExperience = async (data: any) => {
   if (supabase) {
     try {
+      await ensureAuthenticated();
       const dbData = { ...data, display_order: data.displayOrder };
       delete dbData.displayOrder;
       const { data: result, error } = await supabase.from('experience').insert([dbData]).select().single();
       if (error) throw error;
       return result;
-    } catch (err) { console.warn('Supabase create experience failed:', err); }
+    } catch (err) { console.warn('Supabase create experience failed:', err); throw err; }
   }
   return { ...data, id: Date.now() };
 };
@@ -574,6 +605,7 @@ export const createExperience = async (data: any) => {
 export const updateExperience = async (id: number, data: any) => {
   if (supabase) {
     try {
+      await ensureAuthenticated();
       const dbData = { ...data };
       if (data.displayOrder !== undefined) {
         dbData.display_order = data.displayOrder;
@@ -582,7 +614,7 @@ export const updateExperience = async (id: number, data: any) => {
       const { data: result, error } = await supabase.from('experience').update(dbData).eq('id', id).select().single();
       if (error) throw error;
       return result;
-    } catch (err) { console.warn('Supabase update experience failed:', err); }
+    } catch (err) { console.warn('Supabase update experience failed:', err); throw err; }
   }
   return { ...data, id };
 };
@@ -590,8 +622,9 @@ export const updateExperience = async (id: number, data: any) => {
 export const deleteExperience = async (id: number) => {
   if (supabase) {
     try {
+      await ensureAuthenticated();
       await supabase.from('experience').delete().eq('id', id);
-    } catch (err) { console.warn('Supabase delete experience failed:', err); }
+    } catch (err) { console.warn('Supabase delete experience failed:', err); throw err; }
   }
   return { success: true };
 };
@@ -634,12 +667,13 @@ export const fetchEducation = async (): Promise<Education[]> => {
 export const createEducation = async (data: any) => {
   if (supabase) {
     try {
+      await ensureAuthenticated();
       const dbData = { ...data, display_order: data.displayOrder };
       delete dbData.displayOrder;
       const { data: result, error } = await supabase.from('education').insert([dbData]).select().single();
       if (error) throw error;
       return result;
-    } catch (err) { console.warn('Supabase create education failed:', err); }
+    } catch (err) { console.warn('Supabase create education failed:', err); throw err; }
   }
   return { ...data, id: Date.now() };
 };
@@ -647,6 +681,7 @@ export const createEducation = async (data: any) => {
 export const updateEducation = async (id: number, data: any) => {
   if (supabase) {
     try {
+      await ensureAuthenticated();
       const dbData = { ...data };
       if (data.displayOrder !== undefined) {
         dbData.display_order = data.displayOrder;
@@ -655,7 +690,7 @@ export const updateEducation = async (id: number, data: any) => {
       const { data: result, error } = await supabase.from('education').update(dbData).eq('id', id).select().single();
       if (error) throw error;
       return result;
-    } catch (err) { console.warn('Supabase update education failed:', err); }
+    } catch (err) { console.warn('Supabase update education failed:', err); throw err; }
   }
   return { ...data, id };
 };
@@ -663,8 +698,9 @@ export const updateEducation = async (id: number, data: any) => {
 export const deleteEducation = async (id: number) => {
   if (supabase) {
     try {
+      await ensureAuthenticated();
       await supabase.from('education').delete().eq('id', id);
-    } catch (err) { console.warn('Supabase delete education failed:', err); }
+    } catch (err) { console.warn('Supabase delete education failed:', err); throw err; }
   }
   return { success: true };
 };
@@ -701,12 +737,13 @@ export const fetchServices = async (): Promise<Service[]> => {
 export const createService = async (data: any) => {
   if (supabase) {
     try {
+      await ensureAuthenticated();
       const dbData = { ...data, display_order: data.displayOrder };
       delete dbData.displayOrder;
       const { data: result, error } = await supabase.from('services').insert([dbData]).select().single();
       if (error) throw error;
       return result;
-    } catch (err) { console.warn('Supabase create service failed:', err); }
+    } catch (err) { console.warn('Supabase create service failed:', err); throw err; }
   }
   return { id: Date.now(), ...data };
 };
@@ -714,6 +751,7 @@ export const createService = async (data: any) => {
 export const updateService = async (id: number, data: any) => {
   if (supabase) {
     try {
+      await ensureAuthenticated();
       const dbData = { ...data };
       if (data.displayOrder !== undefined) {
         dbData.display_order = data.displayOrder;
@@ -722,7 +760,7 @@ export const updateService = async (id: number, data: any) => {
       const { data: result, error } = await supabase.from('services').update(dbData).eq('id', id).select().single();
       if (error) throw error;
       return result;
-    } catch (err) { console.warn('Supabase update service failed:', err); }
+    } catch (err) { console.warn('Supabase update service failed:', err); throw err; }
   }
   return { ...data, id };
 };
@@ -730,8 +768,9 @@ export const updateService = async (id: number, data: any) => {
 export const deleteService = async (id: number) => {
   if (supabase) {
     try {
+      await ensureAuthenticated();
       await supabase.from('services').delete().eq('id', id);
-    } catch (err) { console.warn('Supabase delete service failed:', err); }
+    } catch (err) { console.warn('Supabase delete service failed:', err); throw err; }
   }
   return { success: true };
 };
@@ -790,11 +829,17 @@ export const fetchAbout = async (): Promise<AboutData> => {
 export const updateAbout = async (data: Partial<AboutData>) => {
   if (supabase) {
     try {
+      // Ensure we have an active session before making the request
+      const session = await restoreSession();
+      if (!session) {
+        throw new Error('Not authenticated. Please log in again.');
+      }
+
       const dbData: any = { ...data };
       if (data.imageUrl !== undefined) { dbData.image_url = data.imageUrl; delete dbData.imageUrl; }
       if (data.hero_image_url !== undefined) { dbData.hero_image_url = data.hero_image_url; delete dbData.hero_image_url; }
       if (data.cvUrl !== undefined) { dbData.cv_url = data.cvUrl; delete dbData.cvUrl; }
-      if (data.is_available !== undefined) { dbData.is_available = data.is_available; delete data.is_available; }
+      if (data.is_available !== undefined) { dbData.is_available = data.is_available; delete dbData.is_available; }
 
       // Ensure we have an ID to update or upsert
       let targetId = data.id;
@@ -919,10 +964,11 @@ export const fetchSettings = async (): Promise<Settings> => {
 export const updateSettings = async (data: Partial<Settings>) => {
   if (supabase) {
     try {
+      await ensureAuthenticated();
       const { data: result, error } = await supabase.from('settings').update(data).eq('id', 1).select().single();
       if (error) throw error;
       return result;
-    } catch (err) { console.warn('Supabase update settings failed:', err); }
+    } catch (err) { console.warn('Supabase update settings failed:', err); throw err; }
   }
   return { ...data, id: 1 };
 };
