@@ -217,12 +217,14 @@ const PersonalInfo: React.FC = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <ImageUpload
+                            id="about-image-upload"
                             label={language === 'en' ? 'About Profile Image' : 'صورة قسم "من أنا"'}
                             value={watch('imageUrl') || ''}
                             onChange={(value) => setValue('imageUrl', value)}
                             error={errors.imageUrl?.message}
                         />
                         <ImageUpload
+                            id="hero-image-upload"
                             label={language === 'en' ? 'Hero Main Image' : 'صورة الواجهة الرئيسية'}
                             value={watch('hero_image_url') || ''}
                             onChange={(value) => setValue('hero_image_url', value)}

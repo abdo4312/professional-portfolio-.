@@ -186,28 +186,28 @@ const getAuthHeader = () => {
 };
 
 export const uploadImage = async (file: File) => {
-  // 1. Try Supabase Storage
-  if (supabase) {
-    try {
-      const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-      const { data, error } = await supabase.storage
-        .from('portfolio-images')
-        .upload(fileName, file);
-
-      if (error) throw error;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('portfolio-images')
-        .getPublicUrl(fileName);
-
-      return publicUrl;
-    } catch (err) {
-      console.warn('Supabase upload failed:', err);
-    }
+  // Try Supabase Storage
+  if (!supabase) {
+    throw new Error('Supabase is not configured. Please check your environment variables.');
   }
 
-  // 2. Mock Fallback
-  return URL.createObjectURL(file);
+  try {
+    const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+    const { data, error } = await supabase.storage
+      .from('portfolio-images')
+      .upload(fileName, file);
+
+    if (error) throw error;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('portfolio-images')
+      .getPublicUrl(fileName);
+
+    return publicUrl;
+  } catch (err: any) {
+    console.error('Supabase upload failed:', err);
+    throw new Error(err.message || 'Failed to upload image to Supabase Storage');
+  }
 };
 
 // --- Auth API ---
@@ -836,10 +836,15 @@ export const updateAbout = async (data: Partial<AboutData>) => {
       }
 
       const dbData: any = { ...data };
-      if (data.imageUrl !== undefined) { dbData.image_url = data.imageUrl; delete dbData.imageUrl; }
-      if (data.hero_image_url !== undefined) { dbData.hero_image_url = data.hero_image_url; delete dbData.hero_image_url; }
-      if (data.cvUrl !== undefined) { dbData.cv_url = data.cvUrl; delete dbData.cvUrl; }
-      if (data.is_available !== undefined) { dbData.is_available = data.is_available; delete dbData.is_available; }
+      // Only convert camelCase fields to snake_case
+      if (data.imageUrl !== undefined) { 
+        dbData.image_url = data.imageUrl; 
+        delete dbData.imageUrl; 
+      }
+      if (data.cvUrl !== undefined) { 
+        dbData.cv_url = data.cvUrl; 
+        delete dbData.cvUrl; 
+      }
 
       // Ensure we have an ID to update or upsert
       let targetId = data.id;

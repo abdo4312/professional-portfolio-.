@@ -5,6 +5,7 @@ import { uploadImage } from '../../services/api';
 import { showError, showSuccess } from '../../services/toast';
 
 interface ImageUploadProps {
+    id?: string;
     value?: string;
     onChange: (value: string) => void;
     label?: string;
@@ -14,6 +15,7 @@ interface ImageUploadProps {
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({
+    id = 'image-upload',
     value,
     onChange,
     label,
@@ -93,10 +95,10 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
                         accept="image/*"
                         onChange={handleFileChange}
                         className="hidden"
-                        id="image-upload"
+                        id={id}
                     />
                     <label
-                        htmlFor="image-upload"
+                        htmlFor={id}
                         className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl cursor-pointer transition-colors flex items-center gap-2"
                     >
                         <Upload size={18} />

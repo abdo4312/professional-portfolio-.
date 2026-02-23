@@ -111,7 +111,7 @@ const DashboardHome: React.FC = () => {
                              {language === 'en' ? 'Last 7 Days' : 'آخر 7 أيام'}
                         </div>
                     </div>
-                    <div className="p-6 h-[300px]">
+                    <div className="p-6 h-[300px] min-h-0">
                         {dailyStats.length > 0 ? (
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart
