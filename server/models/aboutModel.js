@@ -30,7 +30,8 @@ const About = {
       imageUrl, cvUrl, email, phone, address_en, address_ar,
       social_links,
       freelance_status_en, freelance_status_ar,
-      work_status_en, work_status_ar
+      work_status_en, work_status_ar,
+      hero_image_url, is_available
     } = data;
 
     const sql = `
@@ -40,7 +41,8 @@ const About = {
         image_url = $9, cv_url = $10, email = $11, phone = $12, 
         address_en = $13, address_ar = $14, social_links = $15,
         freelance_status_en = $16, freelance_status_ar = $17,
-        work_status_en = $18, work_status_ar = $19
+        work_status_en = $18, work_status_ar = $19,
+        hero_image_url = $20, is_available = $21
       WHERE id = (SELECT id FROM about LIMIT 1)
     `;
 
@@ -50,7 +52,8 @@ const About = {
       imageUrl, cvUrl, email, phone, address_en, address_ar,
       social_links,
       freelance_status_en, freelance_status_ar,
-      work_status_en, work_status_ar
+      work_status_en, work_status_ar,
+      hero_image_url, is_available
     ];
 
     await db.query(sql, params);
