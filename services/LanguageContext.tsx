@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 type Language = 'ar' | 'en';
 
@@ -12,21 +13,26 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const location = useLocation();
+    const isAdmin = location.pathname.startsWith('/admin');
+
     const [language, setLanguage] = useState<Language>(() => {
         return (localStorage.getItem('lang') as Language) || 'en';
     });
 
+    const effectiveLanguage = isAdmin ? language : 'en';
+
     useEffect(() => {
         localStorage.setItem('lang', language);
-        document.documentElement.lang = language;
-        document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
-    }, [language]);
+        document.documentElement.lang = effectiveLanguage;
+        document.documentElement.dir = effectiveLanguage === 'ar' ? 'rtl' : 'ltr';
+    }, [language, effectiveLanguage]);
 
     const toggleLanguage = () => {
         setLanguage((prev) => (prev === 'en' ? 'ar' : 'en'));
     };
 
-    const isRTL = language === 'ar';
+    const isRTL = effectiveLanguage === 'ar';
 
     // Basic translation helper (can be expanded)
     const t = (key: string) => {
@@ -34,7 +40,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     return (
-        <LanguageContext.Provider value={{ language, toggleLanguage, isRTL, t }}>
+        <LanguageContext.Provider value={{ language: effectiveLanguage, toggleLanguage, isRTL, t }}>
             {children}
         </LanguageContext.Provider>
     );
