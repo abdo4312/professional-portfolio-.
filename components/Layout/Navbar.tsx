@@ -40,8 +40,8 @@ const Navbar: React.FC = () => {
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out ${
         isScrolled 
-          ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-3 md:py-4 shadow-sm'
-          : 'bg-transparent py-6 md:py-8'
+          ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 md:py-5 shadow-sm'
+          : 'bg-transparent py-7 md:py-10'
       }`}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
@@ -50,7 +50,7 @@ const Navbar: React.FC = () => {
           <img 
             src={logo} 
             alt={personalInfo.name} 
-            className="h-8 md:h-12 w-auto object-contain transition-all hover:scale-110"
+            className="h-10 md:h-14 w-auto object-contain transition-all hover:scale-110"
           />
         </Link>
 
