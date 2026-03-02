@@ -40,8 +40,8 @@ const Navbar: React.FC = () => {
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out ${
         isScrolled 
-          ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-3 shadow-sm' 
-          : 'bg-transparent py-5'
+          ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-3 md:py-4 shadow-sm'
+          : 'bg-transparent py-6 md:py-8'
       }`}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
@@ -50,7 +50,7 @@ const Navbar: React.FC = () => {
           <img 
             src={logo} 
             alt={personalInfo.name} 
-            className="h-10 md:h-12 w-auto object-contain"
+            className="h-8 md:h-12 w-auto object-contain transition-all hover:scale-110"
           />
         </Link>
 
@@ -68,7 +68,7 @@ const Navbar: React.FC = () => {
 
           <a 
             href="#contact"
-            className="px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold rounded-full hover:bg-slate-800 dark:hover:bg-slate-100 transition-all hover:shadow-lg transform hover:-translate-y-0.5"
+            className="px-5 py-2.5 bg-purple-600 text-white text-sm font-bold rounded-full hover:bg-purple-700 transition-all hover:shadow-lg transform hover:-translate-y-0.5"
           >
             Hire Me
           </a>
@@ -128,7 +128,7 @@ const Navbar: React.FC = () => {
               >
                 <Link 
                   to="/contact"
-                  className="w-full py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-center text-xl font-black rounded-2xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-2xl transform active:scale-[0.98]"
+                  className="w-full py-5 bg-purple-600 text-white text-center text-xl font-black rounded-2xl hover:bg-purple-700 transition-all shadow-2xl transform active:scale-[0.98]"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                    Hire Me
