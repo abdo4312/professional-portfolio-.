@@ -56,13 +56,13 @@ const Hero: React.FC = () => {
             className="order-2 lg:order-1 text-center lg:text-start"
           >
             <motion.div variants={itemVariants}>
-              <span className="inline-block py-2 px-4 rounded-full bg-white border border-slate-200 text-primary-600 text-sm font-bold tracking-wider shadow-sm mb-6">
+              <span className="inline-block py-2 px-4 rounded-full bg-white border border-slate-200 text-purple-600 text-sm font-bold tracking-wider shadow-sm mb-6">
                 👋 {language === 'en' ? 'Welcome to my portfolio' : 'مرحباً بك في معرض أعمالي'}
               </span>
             </motion.div>
 
             <motion.h1 variants={itemVariants} className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 mb-6 leading-[1.1]">
-              {language === 'en' ? "I'm" : "أنا"} <span className="text-primary-600">{name}</span>
+              {language === 'en' ? "I'm" : "أنا"} <span className="text-purple-600">{name}</span>
             </motion.h1>
 
             <motion.h2 variants={itemVariants} className="text-2xl sm:text-3xl text-slate-500 font-medium mb-8">

@@ -19,9 +19,9 @@ const Button: React.FC<ButtonProps> = ({
   const baseStyles = "inline-flex items-center justify-center font-medium transition-all duration-300 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variants = {
-    primary: "bg-slate-900 text-white hover:bg-slate-800 hover:-translate-y-0.5 shadow-sm hover:shadow-md focus:ring-slate-900",
+    primary: "bg-purple-600 text-white hover:bg-purple-700 hover:-translate-y-0.5 shadow-sm hover:shadow-md focus:ring-purple-600",
     secondary: "bg-primary-600 text-white hover:bg-primary-700 hover:-translate-y-0.5 shadow-sm hover:shadow-md focus:ring-primary-600",
-    outline: "border border-slate-300 text-slate-700 bg-transparent hover:bg-slate-50 hover:text-slate-900 focus:ring-slate-500",
+    outline: "border border-purple-200 text-purple-600 bg-transparent hover:bg-purple-50 hover:text-purple-700 focus:ring-purple-500",
     ghost: "text-slate-600 hover:text-slate-900 hover:bg-slate-100 bg-transparent"
   };
 
