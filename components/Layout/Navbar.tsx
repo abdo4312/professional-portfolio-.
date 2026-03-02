@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../services/LanguageContext';
 
 const Navbar: React.FC = () => {
-  const { language, toggleLanguage, isRTL } = useLanguage();
+  const { language, isRTL } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -75,14 +75,6 @@ const Navbar: React.FC = () => {
               {language === 'en' ? link.name : translations[link.name] || link.name}
             </a>
           ))}
-          
-          <button
-            onClick={toggleLanguage}
-            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            aria-label="Toggle Language"
-          >
-            <Globe size={20} className="text-slate-600 dark:text-slate-300" />
-          </button>
 
           <a 
             href="#contact"
@@ -94,13 +86,6 @@ const Navbar: React.FC = () => {
 
         {/* Mobile Menu Button */}
         <div className="flex items-center gap-4 md:hidden relative z-50">
-           <button
-            onClick={toggleLanguage}
-            className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          >
-            <Globe size={20} className="text-slate-600 dark:text-slate-300" />
-          </button>
-
           <button 
             className="text-slate-900 dark:text-white hover:text-primary-600 transition-colors"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

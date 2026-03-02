@@ -23,8 +23,8 @@ import { LanguageProvider } from './services/LanguageContext';
 const App: React.FC = () => {
   return (
     <ErrorBoundary>
-      <LanguageProvider>
-        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <LanguageProvider>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/privacy" element={<Privacy />} />
@@ -60,8 +60,8 @@ const App: React.FC = () => {
 
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </Router>
-      </LanguageProvider>
+        </LanguageProvider>
+      </Router>
     </ErrorBoundary>
   );
 };
