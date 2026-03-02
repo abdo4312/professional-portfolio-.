@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { navLinks, personalInfo } from '../../data/portfolioData';
 import logo from '@/assets/logo.png';
-import { Menu, X, MoreVertical } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../services/LanguageContext';
 
@@ -102,39 +102,39 @@ const Navbar: React.FC = () => {
             </div>
 
             <div className="flex-grow flex flex-col justify-center items-center relative z-10">
-            <nav className="flex flex-col items-center gap-6 w-full max-w-sm px-10">
-              {navLinks.map((link, index) => (
-                <motion.a 
-                  key={link.name} 
-                  href={link.href}
+              <nav className="flex flex-col items-center gap-6 w-full max-w-sm px-10">
+                {navLinks.map((link, index) => (
+                  <motion.a
+                    key={link.name}
+                    href={link.href}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 + 0.1 }}
+                    className="text-3xl font-extrabold text-slate-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-all tracking-tight"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <span className="relative group">
+                      {link.name}
+                      <span className="absolute -bottom-1 left-0 w-0 h-1 bg-primary-600 transition-all group-hover:w-full"></span>
+                    </span>
+                  </motion.a>
+                ))}
+
+                <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 + 0.1 }}
-                  className="text-3xl font-extrabold text-slate-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-all tracking-tight"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  transition={{ delay: navLinks.length * 0.1 + 0.1 }}
+                  className="w-full pt-6 mt-4 flex flex-col items-center gap-6"
                 >
-                  <span className="relative group">
-                    {link.name}
-                    <span className="absolute -bottom-1 left-0 w-0 h-1 bg-primary-600 transition-all group-hover:w-full"></span>
-                  </span>
-                </motion.a>
-              ))}
-              
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: navLinks.length * 0.1 + 0.1 }}
-                className="w-full pt-6 mt-4 flex flex-col items-center gap-6"
-              >
-                <Link 
-                  to="/contact"
-                  className="w-full py-5 bg-purple-600 text-white text-center text-xl font-black rounded-2xl hover:bg-purple-700 transition-all shadow-2xl transform active:scale-[0.98]"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                   Hire Me
-                </Link>
-              </motion.div>
-            </nav>
+                  <Link
+                    to="/contact"
+                    className="w-full py-5 bg-purple-600 text-white text-center text-xl font-black rounded-2xl hover:bg-purple-700 transition-all shadow-2xl transform active:scale-[0.98]"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                     Hire Me
+                  </Link>
+                </motion.div>
+              </nav>
             </div>
 
             {/* Bottom info in menu */}
