@@ -2,25 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { navLinks, personalInfo } from '../../data/portfolioData';
 import logo from '@/assets/logo.png';
-import { Menu, X, Globe } from 'lucide-react';
+import { Menu, X, MoreVertical } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../services/LanguageContext';
 
 const Navbar: React.FC = () => {
-  const { language, isRTL } = useLanguage();
+  const { isRTL } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
-
-  const translations: Record<string, string> = {
-    'About': 'نبذة عني',
-    'Services': 'خدماتي',
-    'Skills': 'مهاراتي',
-    'Experience': 'الخبرات',
-    'Projects': 'أعمالي',
-    'Contact': 'تواصل معي',
-    'Hire Me': 'وظفني'
-  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -72,7 +62,7 @@ const Navbar: React.FC = () => {
               href={link.href}
               className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
             >
-              {language === 'en' ? link.name : translations[link.name] || link.name}
+              {link.name}
             </a>
           ))}
 
@@ -80,18 +70,18 @@ const Navbar: React.FC = () => {
             href="#contact"
             className="px-5 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-bold rounded-full hover:bg-slate-800 dark:hover:bg-slate-100 transition-all hover:shadow-lg transform hover:-translate-y-0.5"
           >
-            {language === 'en' ? 'Hire Me' : translations['Hire Me']}
+            Hire Me
           </a>
         </nav>
 
         {/* Mobile Menu Button */}
         <div className="flex items-center gap-4 md:hidden relative z-50">
           <button 
-            className="text-slate-900 dark:text-white hover:text-primary-600 transition-colors"
+            className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-primary-50 dark:hover:bg-primary-900/30 hover:text-primary-600 transition-all shadow-sm active:scale-95"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
@@ -100,13 +90,19 @@ const Navbar: React.FC = () => {
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl flex flex-col justify-center items-center md:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-40 bg-white dark:bg-slate-950 flex flex-col md:hidden"
           >
-            <nav className="flex flex-col items-center gap-8 w-full max-w-sm px-6">
+            {/* Background pattern */}
+            <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none">
+              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:20px_20px]"></div>
+            </div>
+
+            <div className="flex-grow flex flex-col justify-center items-center relative z-10">
+            <nav className="flex flex-col items-center gap-6 w-full max-w-sm px-10">
               {navLinks.map((link, index) => (
                 <motion.a 
                   key={link.name} 
@@ -114,10 +110,13 @@ const Navbar: React.FC = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 + 0.1 }}
-                  className="text-2xl font-bold text-slate-800 dark:text-slate-100 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                  className="text-3xl font-extrabold text-slate-900 dark:text-white hover:text-primary-600 dark:hover:text-primary-400 transition-all tracking-tight"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  {language === 'en' ? link.name : translations[link.name] || link.name}
+                  <span className="relative group">
+                    {link.name}
+                    <span className="absolute -bottom-1 left-0 w-0 h-1 bg-primary-600 transition-all group-hover:w-full"></span>
+                  </span>
                 </motion.a>
               ))}
               
@@ -125,17 +124,28 @@ const Navbar: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: navLinks.length * 0.1 + 0.1 }}
-                className="w-full pt-8 border-t border-slate-200 dark:border-slate-800 flex flex-col items-center gap-6"
+                className="w-full pt-6 mt-4 flex flex-col items-center gap-6"
               >
                 <Link 
                   to="/contact"
-                  className="w-full py-4 bg-primary-600 text-white text-center text-lg font-bold rounded-xl hover:bg-primary-700 transition-colors shadow-lg shadow-primary-600/20"
+                  className="w-full py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-center text-xl font-black rounded-2xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-2xl transform active:scale-[0.98]"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                   {language === 'en' ? 'Hire Me' : translations['Hire Me']}
+                   Hire Me
                 </Link>
               </motion.div>
             </nav>
+            </div>
+
+            {/* Bottom info in menu */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="p-10 text-center border-t border-slate-100 dark:border-slate-900"
+            >
+              <p className="text-slate-400 text-sm font-medium">{personalInfo.email}</p>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

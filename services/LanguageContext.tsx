@@ -20,6 +20,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return (localStorage.getItem('lang') as Language) || 'en';
     });
 
+    // On public site, always force English. On admin, use selected language.
     const effectiveLanguage = isAdmin ? language : 'en';
 
     useEffect(() => {
