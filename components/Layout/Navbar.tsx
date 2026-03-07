@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { navLinks, personalInfo } from '../../data/portfolioData';
 import logo from '@/assets/logo.png';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Github, Linkedin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../services/LanguageContext';
 
@@ -40,8 +40,8 @@ const Navbar: React.FC = () => {
     <header 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out ${
         isScrolled 
-          ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-3 md:py-4 shadow-sm'
-          : 'bg-transparent py-6 md:py-8'
+          ? 'bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 md:py-5 shadow-sm'
+          : 'bg-transparent py-7 md:py-10'
       }`}
       dir={isRTL ? 'rtl' : 'ltr'}
     >
@@ -50,7 +50,7 @@ const Navbar: React.FC = () => {
           <img 
             src={logo} 
             alt={personalInfo.name} 
-            className="h-8 md:h-12 w-auto object-contain transition-all hover:scale-110"
+            className="h-10 md:h-14 w-auto object-contain transition-all hover:scale-110"
           />
         </Link>
 
@@ -65,6 +65,29 @@ const Navbar: React.FC = () => {
               {link.name}
             </a>
           ))}
+
+          <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
+
+          <div className="flex items-center gap-4">
+            <a
+              href={personalInfo.socials.github}
+              target="_blank"
+              rel="noreferrer"
+              className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+              aria-label="GitHub"
+            >
+              <Github size={20} />
+            </a>
+            <a
+              href={personalInfo.socials.linkedin}
+              target="_blank"
+              rel="noreferrer"
+              className="text-slate-400 hover:text-blue-600 transition-colors"
+              aria-label="LinkedIn"
+            >
+              <Linkedin size={20} />
+            </a>
+          </div>
 
           <a 
             href="#contact"
@@ -144,6 +167,14 @@ const Navbar: React.FC = () => {
               transition={{ delay: 0.8 }}
               className="p-10 text-center border-t border-slate-100 dark:border-slate-900"
             >
+              <div className="flex justify-center gap-6 mb-4">
+                <a href={personalInfo.socials.github} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                  <Github size={24} />
+                </a>
+                <a href={personalInfo.socials.linkedin} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-blue-600 transition-colors">
+                  <Linkedin size={24} />
+                </a>
+              </div>
               <p className="text-slate-400 text-sm font-medium">{personalInfo.email}</p>
             </motion.div>
           </motion.div>

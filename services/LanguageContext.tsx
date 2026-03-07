@@ -14,23 +14,32 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const location = useLocation();
-    const isAdmin = location.pathname.startsWith('/admin');
+
+    // Check if the current route is an admin route or the login page
+    const isAdminArea = location.pathname.startsWith('/admin') || location.pathname === '/login';
 
     const [language, setLanguage] = useState<Language>(() => {
         return (localStorage.getItem('lang') as Language) || 'en';
     });
 
-    // On public site, always force English. On admin, use selected language.
-    const effectiveLanguage = isAdmin ? language : 'en';
+    // On public site, always force English. On admin area, use selected language.
+    const effectiveLanguage = isAdminArea ? language : 'en';
 
     useEffect(() => {
-        localStorage.setItem('lang', language);
+        // Only persist language choice if we're in the admin area
+        if (isAdminArea) {
+            localStorage.setItem('lang', language);
+        }
+
         document.documentElement.lang = effectiveLanguage;
         document.documentElement.dir = effectiveLanguage === 'ar' ? 'rtl' : 'ltr';
-    }, [language, effectiveLanguage]);
+    }, [language, effectiveLanguage, isAdminArea]);
 
     const toggleLanguage = () => {
-        setLanguage((prev) => (prev === 'en' ? 'ar' : 'en'));
+        // Only allow toggling if in the admin area (or keep it as a no-op otherwise)
+        if (isAdminArea) {
+            setLanguage((prev) => (prev === 'en' ? 'ar' : 'en'));
+        }
     };
 
     const isRTL = effectiveLanguage === 'ar';

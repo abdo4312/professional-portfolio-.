@@ -2,28 +2,28 @@ import { Terminal, Layout, Database, Server, Smartphone, Globe, Cloud, Code } fr
 
 export const personalInfo = {
   name: "Abdelrhman Khaled",
-  title: "Graphic Design",
-  tagline: "Abdelrhman Khaled is a Graphic Designer with a strong focus on creating clear, impactful, and purpose-driven visual designs.",
+  title: "Frontend Developer & UI/UX Enthusiast",
+  tagline: "Abdelrhman Khaled is a Frontend Developer & UI/UX Enthusiast with a strong focus on creating clear, impactful, and purpose-driven visual designs.",
   email: "abdorhamnk134@gmail.com",
   socials: {
-    linkedin: "https://www.linkedin.com/in/abdelrhman-khaled-67027b1b5/",
-    github: "https://github.com",
+    linkedin: "https://linkedin.com/in/abdelrhman-khaled",
+    github: "https://github.com/abdo4312",
     twitter: "https://twitter.com"
   }
 };
 
 export const skills = {
   design: [
-    { name: "Adobe Photoshop", level: "Expert" },
-    { name: "Adobe Illustrator", level: "Expert" },
-    { name: "Adobe InDesign", level: "Advanced" },
+    { name: "React", level: "Expert" },
+    { name: "TypeScript", level: "Expert" },
+    { name: "Tailwind CSS", level: "Expert" },
     { name: "Figma", level: "Advanced" }
   ],
   tools: [
-    { name: "Visual Concepts", level: "Advanced" },
-    { name: "Typography", level: "Advanced" },
-    { name: "Layout & Composition", level: "Advanced" },
-    { name: "Brand Identity", level: "Expert" }
+    { name: "Supabase", level: "Advanced" },
+    { name: "Radix UI", level: "Advanced" },
+    { name: "Material-UI", level: "Advanced" },
+    { name: "Electron", level: "Advanced" }
   ],
   other: []
 };
@@ -31,40 +31,49 @@ export const skills = {
 export const experience = [
   {
     id: 1,
-    role: "Graphic Designer",
+    role: "Frontend Developer",
     company: "Freelance",
     period: "2020 - Present",
-    description: "Delivering high-quality graphic design solutions for various clients, including logo design, branding, and marketing materials.",
-    technologies: ["Photoshop", "Illustrator", "InDesign"]
+    description: "Building responsive and performant web applications using modern React ecosystems.",
+    technologies: ["React", "TypeScript", "Tailwind"]
   }
 ];
 
 export const projects = [
   {
     id: 1,
-    title: "Brand Identity Project",
-    description: "Complete brand identity design including logo, business cards, and social media assets.",
-    techStack: ["Illustrator", "Photoshop"],
-    image: "https://images.unsplash.com/photo-1626785774573-4b799314346d?q=80&w=2070&auto=format&fit=crop",
-    githubUrl: "#",
+    title: "Tafaneen Order Bloom",
+    description: "An advanced e-commerce platform built for high-performance and scalability.",
+    techStack: ["React", "TypeScript", "Tailwind", "Supabase", "Radix UI"],
+    image: "https://images.unsplash.com/photo-1557821552-17105176677c?q=80&w=2089&auto=format&fit=crop",
+    githubUrl: "https://github.com/abdo4312",
     liveUrl: "#"
   },
   {
     id: 2,
-    title: "Marketing Campaign Visuals",
-    description: "Designed a series of social media graphics and banners for a digital marketing campaign.",
-    techStack: ["Photoshop", "Figma"],
-    image: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070&auto=format&fit=crop",
-    githubUrl: "#",
+    title: "Maktaba Pro",
+    description: "A comprehensive desktop library management system for professional book organization.",
+    techStack: ["Electron", "React", "TypeScript", "SQLite"],
+    image: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2090&auto=format&fit=crop",
+    githubUrl: "https://github.com/abdo4312",
     liveUrl: "#"
   },
   {
     id: 3,
-    title: "Corporate Brochure Design",
-    description: "Designed a professional corporate brochure for a leading real estate firm.",
-    techStack: ["InDesign", "Illustrator"],
-    image: "https://images.unsplash.com/photo-1586717791821-3f44a5638d0f?q=80&w=1974&auto=format&fit=crop",
-    githubUrl: "#",
+    title: "Money Tracker",
+    description: "A robust expense management application with detailed analytics and visualization.",
+    techStack: ["React", "TypeScript", "Material-UI", "Recharts"],
+    image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=2111&auto=format&fit=crop",
+    githubUrl: "https://github.com/abdo4312",
+    liveUrl: "#"
+  },
+  {
+    id: 4,
+    title: "E-Library",
+    description: "An AI-powered digital library featuring smart search and content analysis.",
+    techStack: ["React 19", "Supabase", "Google Gemini AI", "Capacitor"],
+    image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?q=80&w=2128&auto=format&fit=crop",
+    githubUrl: "https://github.com/abdo4312",
     liveUrl: "#"
   }
 ];
@@ -72,27 +81,27 @@ export const projects = [
 export const services = [
   {
     id: 1,
-    title: "Branding & Identity",
-    description: "Logo Design, Brand Identity Systems, Brand Guidelines. Creating strong, consistent, and visually impactful brand identities.",
-    icon: "palette"
+    title: "Frontend Development",
+    description: "Building fast, interactive, and responsive web applications using React and TypeScript.",
+    icon: "code"
   },
   {
     id: 2,
-    title: "Print Design",
-    description: "Business Cards, Flyers & Brochures, Posters, Packaging Design. High-quality, print-ready files tailored to your needs.",
+    title: "UI/UX Design",
+    description: "Creating intuitive user interfaces and seamless user experiences with a focus on usability.",
     icon: "layout"
   },
   {
     id: 3,
-    title: "Digital Design",
-    description: "Social Media Graphics, Web & UI Visuals, Marketing Banners & Ads. Scalable and adaptable designs for digital use.",
-    icon: "monitor"
+    title: "Cross-Platform Apps",
+    description: "Developing desktop and mobile applications using Electron and Capacitor.",
+    icon: "smartphone"
   },
   {
     id: 4,
-    title: "Creative Design",
-    description: "Visual Concepts, Typography Design, Layout & Composition. Blending creativity with strategic thinking.",
-    icon: "pen-tool"
+    title: "AI Integration",
+    description: "Enhancing applications with AI capabilities using Google Gemini and other LLMs.",
+    icon: "terminal"
   }
 ];
 
@@ -102,7 +111,7 @@ export const education = [
     degree: "Bachelor's Degree",
     institution: "University",
     period: "2016 - 2020",
-    description: "Studied Graphic Design and Visual Communication."
+    description: "Specialized in Computer Science and Software Engineering."
   }
 ];
 
