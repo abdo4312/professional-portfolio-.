@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { navLinks, personalInfo } from '../../data/portfolioData';
 import logo from '@/assets/logo.png';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Github, Linkedin } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '../../services/LanguageContext';
 
@@ -65,6 +65,29 @@ const Navbar: React.FC = () => {
               {link.name}
             </a>
           ))}
+
+          <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
+
+          <div className="flex items-center gap-4">
+            <a
+              href={personalInfo.socials.github}
+              target="_blank"
+              rel="noreferrer"
+              className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+              aria-label="GitHub"
+            >
+              <Github size={20} />
+            </a>
+            <a
+              href={personalInfo.socials.linkedin}
+              target="_blank"
+              rel="noreferrer"
+              className="text-slate-400 hover:text-blue-600 transition-colors"
+              aria-label="LinkedIn"
+            >
+              <Linkedin size={20} />
+            </a>
+          </div>
 
           <a 
             href="#contact"
@@ -144,6 +167,14 @@ const Navbar: React.FC = () => {
               transition={{ delay: 0.8 }}
               className="p-10 text-center border-t border-slate-100 dark:border-slate-900"
             >
+              <div className="flex justify-center gap-6 mb-4">
+                <a href={personalInfo.socials.github} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                  <Github size={24} />
+                </a>
+                <a href={personalInfo.socials.linkedin} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-blue-600 transition-colors">
+                  <Linkedin size={24} />
+                </a>
+              </div>
               <p className="text-slate-400 text-sm font-medium">{personalInfo.email}</p>
             </motion.div>
           </motion.div>
