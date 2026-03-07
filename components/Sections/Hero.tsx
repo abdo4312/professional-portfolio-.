@@ -15,7 +15,9 @@ const Hero: React.FC = () => {
   const name = language === 'en' ? data?.name_en : data?.name_ar;
   const title = language === 'en' ? data?.title_en : data?.title_ar;
   const shortBio = language === 'en' ? data?.short_bio_en : data?.short_bio_ar;
-  const socialLinks = data?.social_links ? JSON.parse(data.social_links) : {};
+  const socialLinks = data?.social_links
+    ? JSON.parse(data.social_links)
+    : (language === 'en' ? { github: "https://github.com/abdo4312", linkedin: "https://linkedin.com/in/abdelrhman-khaled" } : {});
 
   // Animation variants
   const containerVariants = {
@@ -86,13 +88,13 @@ const Hero: React.FC = () => {
             </motion.div>
 
             <motion.div variants={itemVariants} className="flex items-center gap-6 justify-center lg:justify-start text-slate-400">
-              {socialLinks.github && (
-                <a href={socialLinks.github} target="_blank" rel="noreferrer" className="hover:text-slate-900 transition-colors transform hover:scale-110">
+              {(socialLinks.github || (language === 'en' && "https://github.com/abdo4312")) && (
+                <a href={socialLinks.github || "https://github.com/abdo4312"} target="_blank" rel="noreferrer" className="hover:text-slate-900 transition-colors transform hover:scale-110">
                   <Github size={24} />
                 </a>
               )}
-              {socialLinks.linkedin && (
-                <a href={socialLinks.linkedin} target="_blank" rel="noreferrer" className="hover:text-blue-600 transition-colors transform hover:scale-110">
+              {(socialLinks.linkedin || (language === 'en' && "https://linkedin.com/in/abdelrhman-khaled")) && (
+                <a href={socialLinks.linkedin || "https://linkedin.com/in/abdelrhman-khaled"} target="_blank" rel="noreferrer" className="hover:text-blue-600 transition-colors transform hover:scale-110">
                   <Linkedin size={24} />
                 </a>
               )}
@@ -101,8 +103,8 @@ const Hero: React.FC = () => {
                   <Twitter size={24} />
                 </a>
               )}
-              {data?.email && (
-                <a href={`mailto:${data.email}`} className="hover:text-red-500 transition-colors transform hover:scale-110">
+              {(data?.email || (language === 'en' && "abdorhamnk134@gmail.com")) && (
+                <a href={`mailto:${data?.email || "abdorhamnk134@gmail.com"}`} className="hover:text-red-500 transition-colors transform hover:scale-110">
                   <Mail size={24} />
                 </a>
               )}

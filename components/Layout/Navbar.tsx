@@ -69,24 +69,28 @@ const Navbar: React.FC = () => {
           <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-2"></div>
 
           <div className="flex items-center gap-4">
-            <a
-              href={personalInfo.socials.github}
-              target="_blank"
-              rel="noreferrer"
-              className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-              aria-label="GitHub"
-            >
-              <Github size={20} />
-            </a>
-            <a
-              href={personalInfo.socials.linkedin}
-              target="_blank"
-              rel="noreferrer"
-              className="text-slate-400 hover:text-blue-600 transition-colors"
-              aria-label="LinkedIn"
-            >
-              <Linkedin size={20} />
-            </a>
+            {personalInfo.socials.github && (
+              <a
+                href={personalInfo.socials.github}
+                target="_blank"
+                rel="noreferrer"
+                className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                aria-label="GitHub"
+              >
+                <Github size={20} />
+              </a>
+            )}
+            {personalInfo.socials.linkedin && (
+              <a
+                href={personalInfo.socials.linkedin}
+                target="_blank"
+                rel="noreferrer"
+                className="text-slate-400 hover:text-blue-600 transition-colors"
+                aria-label="LinkedIn"
+              >
+                <Linkedin size={20} />
+              </a>
+            )}
           </div>
 
           <a 
@@ -168,12 +172,16 @@ const Navbar: React.FC = () => {
               className="p-10 text-center border-t border-slate-100 dark:border-slate-900"
             >
               <div className="flex justify-center gap-6 mb-4">
-                <a href={personalInfo.socials.github} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-                  <Github size={24} />
-                </a>
-                <a href={personalInfo.socials.linkedin} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-blue-600 transition-colors">
-                  <Linkedin size={24} />
-                </a>
+                {personalInfo.socials.github && (
+                  <a href={personalInfo.socials.github} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                    <Github size={24} />
+                  </a>
+                )}
+                {personalInfo.socials.linkedin && (
+                  <a href={personalInfo.socials.linkedin} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-blue-600 transition-colors">
+                    <Linkedin size={24} />
+                  </a>
+                )}
               </div>
               <p className="text-slate-400 text-sm font-medium">{personalInfo.email}</p>
             </motion.div>
