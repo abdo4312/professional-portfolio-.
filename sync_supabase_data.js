@@ -67,8 +67,7 @@ const newAbout = {
   email: "abdorhamnk134@gmail.com",
   social_links: JSON.stringify({
     linkedin: "https://linkedin.com/in/abdelrhman-khaled",
-    github: "https://github.com/abdo4312",
-    twitter: "https://twitter.com"
+    github: "https://github.com/abdo4312"
   }),
   is_available: true
 };
